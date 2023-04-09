@@ -15,7 +15,7 @@ sys.path.append(
     os.path.join(BASE_DIR, "apps")
 )
 ROOT_URLCONF = 'urls.urls'
-# AUTH_USER_MODEL = 'auths.CustomUser'
+AUTH_USER_MODEL = 'auths.CustomUser'
 
 # ----------------------------------------------
 # Apps
@@ -34,13 +34,8 @@ DJANGO_AND_THIRD_PARTY_APPS = [
     'django_extensions',
 ]
 PROJECT_APPS = [
-    # 'abstracts.apps.AbstractsConfig',
-    # 'auths.apps.AuthsConfig',
-    # 'contacts.apps.ContactsConfig',
-    # 'goods.apps.GoodsConfig',
-    # 'locations.apps.LocationsConfig',
-    # 'orders.apps.OrdersConfig',
-    # 'shops.apps.ShopsConfig',
+    'abstracts.apps.AbstractsConfig',
+    'auths.apps.AuthsConfig',
 ]
 INSTALLED_APPS = DJANGO_AND_THIRD_PARTY_APPS + PROJECT_APPS
 
