@@ -9,6 +9,7 @@ from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response as DRF_Response
 from rest_framework.request import Request as DRF_Request
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 
 from django.db.models import QuerySet
 
@@ -29,6 +30,7 @@ class CustomUserViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
     """CustomUserViewSet."""
 
     queryset: CustomUserManager = CustomUser.objects
+    permission_classes: tuple[Any] = (IsAuthenticated,)
 
     def get_queryset(self) -> QuerySet[CustomUser]:
         """Get not deleted users."""
@@ -41,15 +43,11 @@ class CustomUserViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
         **kwargs: Dict[str, Any]
     ) -> DRF_Response:
         """Handle GET-request."""
-        all_users: QuerySet[CustomUser] = CustomUser.objects.all()
-        serializer: CustomUserSerializer = CustomUserSerializer(
-            instance=all_users,
-            many=True
-        )
-        response: DRF_Response = DRF_Response(
-            data={
-                "data": serializer.data
-            }
+        response: DRF_Response = self.get_drf_response(
+            request=request,
+            data=self.get_queryset(),
+            serializer_class=CustomUserSerializer,
+            many=True,
         )
         return response
 

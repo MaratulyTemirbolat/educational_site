@@ -7,7 +7,6 @@ from typing import (
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from django.utils.safestring import mark_safe
 
 from auths.models import CustomUser
 from abstracts.filters import DeletedStateFilter
