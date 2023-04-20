@@ -10,7 +10,6 @@ from django.contrib.auth.admin import UserAdmin
 
 from auths.models import (
     CustomUser,
-    Teacher,
     Student,
 )
 from abstracts.filters import DeletedStateFilter
@@ -105,11 +104,6 @@ class CustomUserAdmin(AbstractAdminIsDeleted, UserAdmin):
     def get_is_deleted(self, obj: Optional[CustomUser] = None) -> str:
         """Get is deleted state of object."""
         return self.get_is_deleted_obj(obj=obj, obj_name="Пользователь")
-
-
-@admin.register(Teacher)
-class TeacherAdmin(AbstractAdminIsDeleted, admin.ModelAdmin):
-    pass
 
 
 @admin.register(Student)
