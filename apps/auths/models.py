@@ -172,4 +172,4 @@ class Student(Model):
         ordering: tuple[str] = ("-id",)
 
     def __str__(self) -> str:
-        return f"{self.user.first_name} {self.user.last_name}"
+        return f"Студент {self.user.first_name} {self.user.last_name}"

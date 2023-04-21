@@ -107,5 +107,5 @@ class CustomUserAdmin(AbstractAdminIsDeleted, UserAdmin):
 
 
 @admin.register(Student)
-class StudentAdmin(AbstractAdminIsDeleted, admin.ModelAdmin):
+class StudentAdmin(admin.ModelAdmin):
     pass

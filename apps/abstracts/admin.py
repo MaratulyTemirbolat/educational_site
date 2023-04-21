@@ -6,6 +6,13 @@ from apps.abstracts.models import AbstractDateTime
 
 
 class AbstractAdminIsDeleted:
+
+    readonly_fields: tuple[str] = (
+        "datetime_created",
+        "datetime_updated",
+        "datetime_deleted",
+    )
+
     def get_is_deleted_obj(
         self,
         obj: Optional[AbstractDateTime] = None,

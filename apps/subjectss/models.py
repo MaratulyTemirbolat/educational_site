@@ -102,16 +102,19 @@ class SubjectClassTopic(Model):
     subject: ForeignKey = ForeignKey(
         to=Subject,
         on_delete=CASCADE,
+        related_name="subject_class_topics",
         verbose_name="Предмет"
     )
     class_number: ForeignKey = ForeignKey(
         to=Class,
         on_delete=CASCADE,
+        related_name="subject_class_topics",
         verbose_name="Класс"
     )
     topic: ForeignKey = ForeignKey(
         to=Topic,
         on_delete=CASCADE,
+        related_name="subject_class_topics",
         verbose_name="Тема"
     )
 

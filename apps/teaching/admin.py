@@ -7,11 +7,10 @@ from teaching.models import (
     Teacher,
     TeacherSubjectClass,
 )
-from abstracts.admin import AbstractAdminIsDeleted
 
 
 @register(Teacher)
-class TeacherAdmin(AbstractAdminIsDeleted, ModelAdmin):
+class TeacherAdmin(ModelAdmin):
     pass
 
 
