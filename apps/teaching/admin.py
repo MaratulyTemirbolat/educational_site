@@ -3,17 +3,9 @@ from django.contrib.admin import (
     ModelAdmin,
 )
 
-from teaching.models import (
-    Teacher,
-    TeacherSubjectClass,
-)
+from teaching.models import Teacher
 
 
 @register(Teacher)
 class TeacherAdmin(ModelAdmin):
-    pass
-
-
-@register(TeacherSubjectClass)
-class TeacherSubjectClassModel(ModelAdmin):
     pass

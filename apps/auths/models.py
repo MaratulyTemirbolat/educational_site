@@ -11,14 +11,9 @@ from django.db.models import (
     CharField,
     BooleanField,
     QuerySet,
-    OneToOneField,
-    Model,
-    IntegerField,
-    PROTECT,
 )
 
 from abstracts.models import AbstractDateTime
-from auths.validators import validate_negative_int
 
 
 class CustomUserManager(BaseUserManager):
@@ -153,23 +148,5 @@ class CustomUser(
         verbose_name: str = "Пользователь"
         verbose_name_plural: str = "Пользователи"
 
-
-class Student(Model):
-    user: CustomUser = OneToOneField(
-        to=CustomUser,
-        on_delete=PROTECT,
-        verbose_name="Пользователь"
-    )
-    points: IntegerField = IntegerField(
-        default=0,
-        validators=[validate_negative_int],
-        verbose_name="Баллы"
-    )
-
-    class Meta:
-        verbose_name: str = "Обучающийся"
-        verbose_name_plural: str = "Обучающиеся"
-        ordering: tuple[str] = ("-id",)
-
     def __str__(self) -> str:
-        return f"Студент {self.user.first_name} {self.user.last_name}"
+        return self.first_name + " " + self.last_name

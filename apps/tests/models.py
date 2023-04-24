@@ -13,7 +13,7 @@ from django.db.models import (
 
 from abstracts.models import AbstractDateTime
 from subjectss.models import Topic
-from auths.models import Student
+from subjectss.models import Student
 from tests.validators import validate_questions_number
 
 
@@ -43,7 +43,7 @@ class Question(AbstractDateTime):
         db_index=True,
         verbose_name="Наименование"
     )
-    attached_topic: Topic = ForeignKey(
+    attached_subject_class: Topic = ForeignKey(
         to=Topic,
         on_delete=CASCADE,
         related_name="questions",

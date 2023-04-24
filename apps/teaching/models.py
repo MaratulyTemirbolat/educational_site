@@ -5,7 +5,6 @@ from django.db.models import (
     OneToOneField,
     Model,
     ForeignKey,
-    UniqueConstraint,
     ManyToManyField,
     DateTimeField,
     CASCADE,
@@ -13,7 +12,7 @@ from django.db.models import (
 
 from auths.models import CustomUser
 from subscriptions.models import Subscription, Status
-from subjectss.models import Subject, Class
+from subjectss.models import ClassSubject
 from teaching.validators import validate_teacher_update
 
 
@@ -24,13 +23,12 @@ class Teacher(Model):
         verbose_name="Пользователь"
     )
     tought_subjects: ManyToManyField = ManyToManyField(
-        to=Subject,
-        through="TeacherSubjectClass",
-        through_fields=("teacher", "subject"),
-        related_name="subjects",
-        verbose_name="Предметы"
+        to=ClassSubject,
+        blank=True,
+        related_name="teachers",
+        verbose_name="Преподаваемые предметы"
     )
-    subscription: ForeignKey = ForeignKey(
+    subscription: Subscription = ForeignKey(
         to=Subscription,
         on_delete=CASCADE,
         blank=True,
@@ -38,7 +36,7 @@ class Teacher(Model):
         related_name="used_by",
         verbose_name="Подписка"
     )
-    status_subscription: ForeignKey = ForeignKey(
+    status_subscription: Status = ForeignKey(
         to=Status,
         on_delete=CASCADE,
         blank=True,
@@ -84,32 +82,3 @@ class Teacher(Model):
         print("save")
         self.__old_subscription = self.subscription
         return super().save(*args, **kwargs)
-
-
-class TeacherSubjectClass(Model):
-    teacher: Teacher = ForeignKey(
-        to=Teacher,
-        on_delete=CASCADE,
-        verbose_name="Преподаватель"
-    )
-    subject: Subject = ForeignKey(
-        to=Subject,
-        on_delete=CASCADE,
-        verbose_name="Ведущий предмет"
-    )
-    clas: Class = ForeignKey(
-        to=Class,
-        on_delete=CASCADE,
-        verbose_name="Возможные классы"
-    )
-
-    class Meta:
-        verbose_name: str = "Предмет преподавателя с классом"
-        verbose_name_plural: str = "Предметы преподавателей с классами"
-        ordering: tuple[str] = ("-id",)
-        constraints: list[Any] = [
-            UniqueConstraint(
-                fields=['teacher', 'subject', 'clas'],
-                name="unique_teacher_subject_clas"
-            ),
-        ]

@@ -1,15 +1,18 @@
 from django.contrib.admin import (
-    register,
     ModelAdmin,
+    register,
 )
 
 from abstracts.admin import AbstractAdminIsDeleted
 from subjectss.models import (
     Topic,
     Class,
-    Subject,
     TrackWay,
-    SubjectClassTopic,
+    StudentSubjectState,
+    GeneralSubject,
+    ClassSubject,
+    StudentRegisteredSubjects,
+    Student,
 )
 
 
@@ -23,7 +26,22 @@ class ClassAdmin(AbstractAdminIsDeleted, ModelAdmin):
     ...
 
 
-@register(Subject)
+@register(GeneralSubject)
+class GeneralSubjectAdmin(AbstractAdminIsDeleted, ModelAdmin):
+    ...
+
+
+@register(StudentSubjectState)
+class StudentSubjectStateAdmin(AbstractAdminIsDeleted, ModelAdmin):
+    ...
+
+
+@register(StudentRegisteredSubjects)
+class StudentRegisteredSubjectsAdmin(ModelAdmin):
+    ...
+
+
+@register(ClassSubject)
 class SubjectAdmin(AbstractAdminIsDeleted, ModelAdmin):
     ...
 
@@ -33,6 +51,6 @@ class TrackWayAdmin(AbstractAdminIsDeleted, ModelAdmin):
     ...
 
 
-@register(SubjectClassTopic)
-class SubjectClassTopicAdmin(ModelAdmin):
+@register(Student)
+class StudentAdmin(ModelAdmin):
     ...
