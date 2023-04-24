@@ -40,6 +40,7 @@ PROJECT_APPS = [
     'subscriptions.apps.SubscriptionsConfig',
     'teaching.apps.TeachingConfig',
     'tests.apps.TestsConfig',
+    'chats.apps.ChatsConfig',
 ]
 INSTALLED_APPS = DJANGO_AND_THIRD_PARTY_APPS + PROJECT_APPS
 
