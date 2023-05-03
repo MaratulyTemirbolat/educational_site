@@ -1,10 +1,12 @@
-import names
+from names import (
+    get_first_name,
+    get_last_name,
+)
 from datetime import datetime
 from random import choice
 from typing import (
     Any,
     Tuple,
-    Optional,
     Dict,
 )
 
@@ -21,7 +23,7 @@ class Command(BaseCommand):
         "mail.ru", "gmail.com", "outlook.com", "yahoo.com",
         "inbox.ru", "yandex.kz", "yandex.ru", "mail.kz",
     )
-    __worker_states: tuple[bool] = (True, False,)
+    PASSWORD_PATTERN = "12345"
 
     def __init__(self, *args: Tuple[Any], **kwargs: Dict[str, Any]) -> None:
         """Call parent constructor."""
@@ -33,18 +35,19 @@ class Command(BaseCommand):
             return f"{first_name.lower()}_{last_name.lower()}@{email_pattern}"
 
         def get_name() -> str:
-            return names.get_first_name()
+            return get_first_name()
 
         def get_surname() -> str:
-            return names.get_last_name()
+            return get_last_name()
 
         def generate_password() -> str:
-            PASSWORD_PATTERN = "12345"
-            return make_password(PASSWORD_PATTERN)
+            return make_password(self.PASSWORD_PATTERN)
 
+        users_cnt: int = 0
+        obj: CustomUser
+        is_created: bool = False
         i: int
         for i in range(required_number):
-            shop_id: Optional[int] = None
 
             first_name: str = get_name()
             last_name: str = get_surname()
@@ -52,14 +55,16 @@ class Command(BaseCommand):
                 first_name=first_name,
                 last_name=last_name
             )
-            CustomUser.objects.get_or_create(
+            obj, is_created = CustomUser.objects.get_or_create(
                 email=email,
                 first_name=first_name,
                 last_name=last_name,
-                shop_id=shop_id,
                 password=generate_password()
             )
-        print(f"{required_number} пользователей успешно созданы")
+            if is_created:
+                users_cnt += 1
+                print(f"Пользователь {obj} успешно создан")
+        print(f"{users_cnt} пользователей успешно созданы")
 
     def handle(self, *args: Tuple[Any], **options: Dict[str, Any]) -> None:
         """Handle data filling."""
