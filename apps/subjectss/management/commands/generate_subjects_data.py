@@ -225,12 +225,14 @@ class Command(BaseCommand):
         is_created: bool = False
         points_number: int = 0
         _: Student
+        is_existed: bool = False
 
         is_stud: bool = False
         user_id: int
         for user_id in all_users_ids:
             is_stud = choice(self.__student_states)
-            if is_stud and not Student.objects.filter(user_id=user_id).exists():
+            is_existed = Student.objects.filter(user_id=user_id).exists()
+            if is_stud and not is_existed:
                 points_number = randint(0, 10000)  # Исправить get_or_create
                 _, is_created = Student.objects.get_or_create(
                     user_id=user_id,
@@ -268,7 +270,6 @@ class Command(BaseCommand):
                 student_id=student_id,
                 class_subject_id=class_subject_id
             ).exists()
-            # breakpoint()
             if not is_existed:
                 StudentRegisteredSubjects.objects.create(
                     student_id=student_id,
