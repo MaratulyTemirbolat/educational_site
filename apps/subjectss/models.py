@@ -35,6 +35,9 @@ class StudentSubjectState(AbstractDateTime):
         verbose_name_plural: str = "Состояния взятого студентом предметов"
         ordering: tuple[str] = ("-datetime_updated",)
 
+    def __str__(self) -> str:
+        return self.name
+
 
 class GeneralSubject(AbstractDateTime):
     SUBJECT_NAME_LIMIT = 200
@@ -49,6 +52,9 @@ class GeneralSubject(AbstractDateTime):
         verbose_name: str = "Предмет"
         verbose_name_plural: str = "Предметы"
         ordering: tuple[str] = ("-datetime_updated",)
+
+    def __str__(self) -> str:
+        return self.name
 
 
 class Class(AbstractDateTime):
