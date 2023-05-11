@@ -1,6 +1,9 @@
+from typing import Any
+
 from django.db.models import (
     TextField,
     ForeignKey,
+    UniqueConstraint,
     CASCADE,
 )
 
@@ -28,6 +31,12 @@ class PersonalChat(AbstractDateTime):
         verbose_name: str = "Личный чат"
         verbose_name_plural: str = "Личные чаты (переписки)"
         ordering: tuple[str] = ("-datetime_updated",)
+        constraints: tuple[Any] = [
+            UniqueConstraint(
+                fields=['student', 'teacher'],
+                name="unique_student_teacher_chat"
+            ),
+        ]
 
 
 class Message(AbstractDateTime):
