@@ -9,6 +9,7 @@ from tests.models import (
     Answer,
     Quiz,
     QuizType,
+    QuizQuestionAnswer,
 )
 
 
@@ -28,5 +29,10 @@ class QuizTypeAdmin(AbstractAdminIsDeleted, ModelAdmin):
 
 
 @register(Quiz)
-class SubjectQuizModel(ModelAdmin):
+class QuizAdmin(ModelAdmin):
+    ...
+
+
+@register(QuizQuestionAnswer)
+class QuizQuestionAnswerAdmin(ModelAdmin):
     ...

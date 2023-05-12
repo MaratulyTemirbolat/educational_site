@@ -14,7 +14,10 @@ from django.db.models import (
 from abstracts.models import AbstractDateTime
 from subjectss.models import Topic
 from subjectss.models import Student
-from tests.validators import validate_questions_number
+from tests.validators import (
+    validate_questions_number,
+    validate_negative_point,
+)
 
 
 class QuizType(AbstractDateTime):
@@ -98,7 +101,7 @@ class Quiz(Model):
         related_name="subject_quizes",
         verbose_name="Зарегестрированный стедент"
     )
-    quiz_type: ForeignKey = ForeignKey(
+    quiz_type: QuizType = ForeignKey(
         to=QuizType,
         on_delete=CASCADE,
         related_name="quizes",
@@ -106,6 +109,8 @@ class Quiz(Model):
     )
     questions: ManyToManyField = ManyToManyField(
         to=Question,
+        through="QuizQuestionAnswer",
+        through_fields=["quiz", "question"],
         verbose_name="Вопросы на предмет"
     )
     correct_answers: IntegerField = IntegerField(
@@ -120,3 +125,36 @@ class Quiz(Model):
 
     def __str__(self) -> str:
         return f"{self.student} {self.quiz_type}"
+
+
+class QuizQuestionAnswer(Model):
+    quiz: Quiz = ForeignKey(
+        to=Quiz,
+        on_delete=CASCADE,
+        related_name="quiz_questions",
+        verbose_name="Тест"
+    )
+    question: Question = ForeignKey(
+        to=Question,
+        on_delete=CASCADE,
+        related_name="quiz_questions",
+        verbose_name="Вопрос"
+    )
+    user_answer: Answer = ForeignKey(
+        to=Answer,
+        on_delete=CASCADE,
+        related_name="user_answer",
+        verbose_name="Ответ пользователя"
+    )
+    answer_point: IntegerField = IntegerField(
+        default=0,
+        validators=[validate_negative_point],
+        verbose_name="Баллы за ответ"
+    )
+
+    class Meta:
+        verbose_name: str = "Ответ на вопрос теста"
+        verbose_name_plural: str = "Ответы на вопросы тестов"
+
+    def __str__(self) -> str:
+        return f"{self.quiz} {self.question} {self.user_answer}"
