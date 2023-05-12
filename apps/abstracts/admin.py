@@ -28,3 +28,4 @@ class AbstractAdminIsDeleted:
             f'<p style="color: green; font-weight: bold; font-size: 17px;">\
                 {obj_name} не удалён</p>'
         )
+    get_is_deleted_obj.short_description = "Состояние объекта"
