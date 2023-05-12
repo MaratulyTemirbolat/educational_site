@@ -38,6 +38,9 @@ class PersonalChat(AbstractDateTime):
             ),
         ]
 
+    def __str__(self) -> str:
+        return f"Чат студента {self.student} с преподавателем {self.teacher}"
+
 
 class Message(AbstractDateTime):
     content: TextField = TextField(

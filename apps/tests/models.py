@@ -120,11 +120,11 @@ class Quiz(Model):
     )
 
     class Meta:
-        verbose_name: str = "Вопрос по предмету"
-        verbose_name_plural: str = "Вопросы по предметам"
+        verbose_name: str = "Тест"
+        verbose_name_plural: str = "Тесты"
 
     def __str__(self) -> str:
-        return f"{self.student} {self.quiz_type}"
+        return f"Студент: '{self.student}' Тип теста: '{self.quiz_type}'"
 
 
 class QuizQuestionAnswer(Model):
