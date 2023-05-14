@@ -61,7 +61,7 @@ class Teacher(Model):
         self.__old_subscription = self.subscription
 
     def __str__(self) -> str:
-        return f"{self.user.first_name} {self.user.last_name}"
+        return f"Преподаватель {self.user}"
 
     def clean(self) -> None:
         print("clean")
