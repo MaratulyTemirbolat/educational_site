@@ -1,5 +1,4 @@
 from typing import (
-    Any,
     List,
     Tuple,
     Optional,
@@ -26,8 +25,8 @@ class DeletedStateFilter(SimpleListFilter):
     ) -> List[Tuple[str, str]]:
         """Return tuple of value and verbose value."""
         return [
-            ("deleted", "Удаленные пользователи"),
-            ("not_deleted", "Неудалённые пользователи"),
+            ("deleted", "Удаленные объекты"),
+            ("not_deleted", "Неудалённые объекты"),
         ]
 
     def queryset(

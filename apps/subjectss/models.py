@@ -227,3 +227,7 @@ class StudentRegisteredSubjects(Model):
                 name="unique_student_class_subject"
             ),
         ]
+
+    def __str__(self) -> str:
+        return f"'{self.student}'\
+            Предмет: {self.class_subject} {self.current_state}"
