@@ -1,8 +1,12 @@
-from typing import Optional
+from typing import (
+    Optional,
+    Any,
+)
 
 from django.utils.safestring import mark_safe
 
-from apps.abstracts.models import AbstractDateTime
+from abstracts.models import AbstractDateTime
+from abstracts.filters import DeletedStateFilter
 
 
 class AbstractAdminIsDeleted:
@@ -12,6 +16,7 @@ class AbstractAdminIsDeleted:
         "datetime_updated",
         "datetime_deleted",
     )
+    list_filter: tuple[Any] = (DeletedStateFilter,)
 
     def get_is_deleted_obj(
         self,
