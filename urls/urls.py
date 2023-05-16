@@ -14,6 +14,9 @@ from django.conf import settings
 from rest_framework.routers import DefaultRouter
 
 from apps.auths.views import CustomUserViewSet
+from apps.subjectss.views import (
+    GeneralSubjectViewSet,
+)
 
 urlpatterns = [
     path(settings.ADMIN_SITE_URL, admin.site.urls),
@@ -45,6 +48,7 @@ if settings.DEBUG:
 router: DefaultRouter = DefaultRouter(trailing_slash=False)
 
 router.register('auths/users', CustomUserViewSet)
+router.register('subjects/general_subjects', GeneralSubjectViewSet)
 
 urlpatterns += [
     path(
