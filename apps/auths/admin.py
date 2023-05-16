@@ -17,7 +17,7 @@ from abstracts.admin import AbstractAdminIsDeleted
 class CustomUserAdmin(AbstractAdminIsDeleted, UserAdmin):
     """CustomUser setting on Django admin site."""
 
-    ordering: tuple[str] = ("email",)
+    ordering: tuple[str] = ("-datetime_updated", "-id")
     list_display: tuple[str] = (
         "id",
         "email",
@@ -39,6 +39,9 @@ class CustomUserAdmin(AbstractAdminIsDeleted, UserAdmin):
     )
     search_fields: Sequence[str] = (
         "email",
+        "first_name",
+        "last_name",
+        "id",
     )
     list_filter: tuple[str, Any] = (
         "is_active",

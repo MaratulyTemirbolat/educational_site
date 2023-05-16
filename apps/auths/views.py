@@ -3,7 +3,9 @@ from typing import (
     Optional,
     Tuple,
     Any,
+    List,
 )
+from datetime import datetime
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from rest_framework.viewsets import ViewSet
@@ -14,12 +16,14 @@ from rest_framework.decorators import action
 from rest_framework.permissions import (
     IsAuthenticated,
     AllowAny,
+    IsAdminUser,
 )
 
 from django.db.models import QuerySet
 
 from abstracts.mixins import ModelInstanceMixin
 from abstracts.handlers import DRFResponseHandler
+from abstracts.paginators import AbstractPageNumberPaginator
 from auths.models import (
     CustomUser,
     CustomUserManager,
@@ -36,6 +40,8 @@ class CustomUserViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
 
     queryset: CustomUserManager = CustomUser.objects
     permission_classes: tuple[Any] = (IsAuthenticated,)
+    pagination_class: AbstractPageNumberPaginator = \
+        AbstractPageNumberPaginator
 
     def get_queryset(self) -> QuerySet[CustomUser]:
         """Get not deleted users."""
@@ -48,11 +54,23 @@ class CustomUserViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
         **kwargs: Dict[str, Any]
     ) -> DRF_Response:
         """Handle GET-request."""
+        is_deleted: bool = request.GET.get("is_deleted", False)
+        if is_deleted and not request.user.is_superuser:
+            message: str = "Вам нельзя запрашивать удалённых пользователей"
+            return DRF_Response(
+                data={
+                    "response": message
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+        sear_queryset: QuerySet[CustomUser] = self.queryset.get_deleted() \
+            if is_deleted else self.get_queryset()
         response: DRF_Response = self.get_drf_response(
             request=request,
-            data=self.get_queryset(),
+            data=sear_queryset,
             serializer_class=CustomUserSerializer,
-            many=True
+            many=True,
+            paginator=self.pagination_class()
         )
         return response
 
@@ -154,4 +172,39 @@ class CustomUserViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
         return DRF_Response(
             data=serializer.errors,
             status=status.HTTP_400_BAD_REQUEST
+        )
+
+    @action(
+        methods=["DELETE"],
+        url_path="delete",
+        detail=False,
+        permission_classes=(IsAdminUser,)
+    )
+    def delete_users(
+        self,
+        request: DRF_Request,
+        *args: Tuple[Any],
+        **kwargs: Dict[str, Any]
+    ) -> DRF_Response:
+        user_ids: Optional[List[int]] = request.data.get("user_ids", None)
+        if not user_ids:
+            return DRF_Response(
+                data={
+                    "message": "user_ids должен быть предоставлен с id"
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        deleted_objs: int = 0
+        deleted_objs = CustomUser.objects.get_not_deleted.filter(
+            id__in=user_ids
+        ).update(
+            datetime_deleted=datetime.now()
+        )
+        msg: str = f"{deleted_objs} пользователей успешно удалено" \
+            if deleted_objs > 0 else "Не один из пользователй не был удалён"
+
+        return DRF_Response(
+            data={
+                "response": msg
+            }
         )
