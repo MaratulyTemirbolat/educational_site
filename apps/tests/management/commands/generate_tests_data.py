@@ -151,13 +151,13 @@ class Command(BaseCommand):
             )
             all_quizes.append(quiz)
             created_quizes += 1
+        Quiz.objects.bulk_create(all_quizes)
 
-        quiz_question_answer_list: list[QuizQuestionAnswer] = []
-        cur_quiz_question: Optional[QuizQuestionAnswer] = None
         cur_question: Question = choice(all_questions)
         user_answer: Answer = choice(cur_question.answers.all())
         created_quiz_answers: int = 0
         correct_answers_number: int = 0
+        is_existed_user_quest_answ: bool = False
         quiz: Quiz
         for quiz in all_quizes:
             question_number: int = get_questions_number(quiz.quiz_type.name)
@@ -166,20 +166,23 @@ class Command(BaseCommand):
             for _ in range(question_number):
                 cur_question = choice(all_questions)
                 user_answer = choice(cur_question.answers.all())
-                cur_quiz_question = QuizQuestionAnswer(
-                    quiz=quiz,
-                    question=cur_question,
-                    user_answer=user_answer,
-                    answer_point=1 if user_answer.is_correct else 0
-                )
-                correct_answers_number = correct_answers_number + 1 \
-                    if user_answer.is_correct else correct_answers_number
-                quiz_question_answer_list.append(cur_quiz_question)
-                created_quiz_answers += 1
+                is_existed_user_quest_answ = QuizQuestionAnswer.objects.filter(
+                    quiz_id=quiz.id,
+                    question_id=cur_question.id,
+                    user_answer=user_answer.id
+                ).exists()
+                if not is_existed_user_quest_answ:
+                    QuizQuestionAnswer.objects.create(
+                        quiz=quiz,
+                        question=cur_question,
+                        user_answer=user_answer,
+                        answer_point=1 if user_answer.is_correct else 0
+                    )
+                    correct_answers_number = correct_answers_number + 1 \
+                        if user_answer.is_correct else correct_answers_number
+                    created_quiz_answers += 1
             quiz.correct_answers = correct_answers_number
 
-        Quiz.objects.bulk_create(all_quizes)
-        QuizQuestionAnswer.objects.bulk_create(quiz_question_answer_list)
         print(f"{created_quizes} тестов успешно создано")
         print(f"{created_quiz_answers} ответов на тесты успешно создано")
 

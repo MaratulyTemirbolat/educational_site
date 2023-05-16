@@ -80,8 +80,8 @@ class Answer(AbstractDateTime):
     )
 
     class Meta:
-        verbose_name_plural: str = "Возможные ответы на вопросы"
-        verbose_name: str = "Возможный ответ на вопрос"
+        verbose_name_plural: str = "Ответы"
+        verbose_name: str = "Ответ"
         ordering: tuple[str] = ("-datetime_updated",)
         constraints: tuple[Any] = (
             UniqueConstraint(
@@ -155,6 +155,12 @@ class QuizQuestionAnswer(Model):
     class Meta:
         verbose_name: str = "Ответ на вопрос теста"
         verbose_name_plural: str = "Ответы на вопросы тестов"
+        constraints: tuple[Any] = (
+            UniqueConstraint(
+                fields=['quiz', 'question', 'user_answer'],
+                name="unique_quiz_question_user_answer"
+            ),
+        )
 
     def __str__(self) -> str:
         return f"{self.quiz} {self.question} {self.user_answer}"

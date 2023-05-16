@@ -26,11 +26,11 @@ class AbstractAdminIsDeleted:
         """Get is deleted state of object."""
         if obj.datetime_deleted:
             return mark_safe(
-                f'<p style="color:red; font-weight: bold; font-size: 17px;">\
+                f'<p style="color:red; font-weight: bold; font-size: 16px;">\
                     {obj_name} удалён</p>'
             )
         return mark_safe(
-            f'<p style="color: green; font-weight: bold; font-size: 17px;">\
+            f'<p style="color: green; font-weight: bold; font-size: 16px;">\
                 {obj_name} не удалён</p>'
         )
     get_is_deleted_obj.short_description = "Состояние объекта"
