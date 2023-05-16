@@ -194,6 +194,7 @@ class CustomUserViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
+
         deleted_objs: int = 0
         deleted_objs = CustomUser.objects.get_not_deleted.filter(
             id__in=user_ids
@@ -207,4 +208,86 @@ class CustomUserViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
             data={
                 "response": msg
             }
+        )
+
+    @action(
+        methods=["GET"],
+        url_path="block",
+        detail=True,
+        permission_classes=(IsAdminUser,)
+    )
+    def block(
+        self,
+        request: DRF_Request,
+        pk: int = 0,
+        *args: Tuple[Any],
+        **kwargs: Dict[str, Any]
+    ) -> DRF_Response:
+        user: Optional[CustomUser] = None
+        user = self.get_queryset_instance(
+            class_name=CustomUser,
+            queryset=self.queryset.get_not_deleted(),
+            pk=pk
+        )
+        if not user:
+            return DRF_Response(
+                data={
+                    "message": f"Пользователь с {pk} не найден или удалён"
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+        if not user.is_active:
+            return DRF_Response(
+                data={
+                    "message": f"Пользователь {user} уже заблокирован"
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        user.block()
+        return DRF_Response(
+            data={
+                "message": f"Пользователь {user} успешно заблокирован"
+            },
+            status=status.HTTP_202_ACCEPTED
+        )
+
+    @action(
+        methods=["GET"],
+        url_path="unblock",
+        detail=True,
+        permission_classes=(IsAdminUser,)
+    )
+    def unblock(
+        self,
+        request: DRF_Request,
+        pk: int = 0,
+        *args: Tuple[Any],
+        **kwargs: Dict[str, Any]
+    ) -> DRF_Response:
+        user: Optional[CustomUser] = None
+        user = self.get_queryset_instance(
+            class_name=CustomUser,
+            queryset=self.queryset.get_not_deleted(),
+            pk=pk
+        )
+        if not user:
+            return DRF_Response(
+                data={
+                    "message": f"Пользователь с {pk} не найден или удалён"
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+        if user.is_active:
+            return DRF_Response(
+                data={
+                    "message": f"Пользователь {user} не заблокирован"
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        user.unblock()
+        return DRF_Response(
+            data={
+                "message": f"Пользователь {user} успешно разблокирован"
+            },
+            status=status.HTTP_202_ACCEPTED
         )

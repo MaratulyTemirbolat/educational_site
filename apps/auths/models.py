@@ -150,3 +150,19 @@ class CustomUser(
 
     def __str__(self) -> str:
         return self.first_name + " " + self.last_name
+
+    def block(self, *args: tuple[Any], **kwargs: dict[str, Any]) -> None:
+        """Block user."""
+        if self.is_active:
+            self.is_active = False
+            self.save(
+                update_fields=['is_active']
+            )
+
+    def unblock(self, *args: tuple[Any], **kwargs: dict[str, Any]) -> None:
+        """Unblock user."""
+        if not self.is_active:
+            self.is_active = True
+            self.save(
+                update_fields=['is_active']
+            )
