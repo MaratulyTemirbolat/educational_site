@@ -4,12 +4,17 @@ from typing import (
     Tuple,
     Any,
 )
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response as DRF_Response
 from rest_framework.request import Request as DRF_Request
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
+from rest_framework.permissions import (
+    IsAuthenticated,
+    AllowAny,
+)
 
 from django.db.models import QuerySet
 
@@ -47,7 +52,7 @@ class CustomUserViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
             request=request,
             data=self.get_queryset(),
             serializer_class=CustomUserSerializer,
-            many=True,
+            many=True
         )
         return response
 
@@ -87,14 +92,20 @@ class CustomUserViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
             }
         )
 
-    def create(
+    @action(
+        methods=["POST"],
+        url_path="register_user",
+        detail=False,
+        permission_classes=(AllowAny,)
+    )
+    def create_user(
         self,
         request: DRF_Request,
         *args: tuple[Any],
         **kwargs: dict[str, Any]
     ) -> DRF_Response:
         """Handle POST-request for user creation."""
-        is_superuser: bool = kwargs.get("is_superuser", False)
+        is_superuser: bool = request.data.get("is_superuser", False)
         is_staff: bool = False
 
         if is_superuser and not request.user.is_superuser:
@@ -112,7 +123,7 @@ class CustomUserViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
         if not new_password or not isinstance(new_password, str):
             return DRF_Response(
                 data={
-                    "passord": "Пароль обязан быть в формате строки"
+                    "password": "Пароль обязан быть в формате строки"
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
@@ -129,8 +140,14 @@ class CustomUserViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
             )
             new_custom_user.set_password(new_password)
             new_custom_user.save()
+            refresh_token: RefreshToken = RefreshToken.for_user(
+                new_custom_user
+            )
+            resulted_data: dict[str, Any] = serializer.data.copy()
+            resulted_data.setdefault("refresh", str(refresh_token))
+            resulted_data.setdefault("access", str(refresh_token.access_token))
             response: DRF_Response = DRF_Response(
-                data=serializer.data,
+                data=resulted_data,
                 status=status.HTTP_201_CREATED
             )
             return response
