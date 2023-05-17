@@ -30,6 +30,4 @@ class AbstractDateTimeSerializer:
         **kwargs: Dict[str, Any]
     ) -> bool:
         """Get is_deleted field."""
-        if obj.datetime_deleted:
-            return True
-        return False
+        return True if obj.datetime_deleted else False

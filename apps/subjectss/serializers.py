@@ -1,9 +1,60 @@
-from rest_framework.serializers import ModelSerializer
+from typing import Tuple
 
-from subjectss.models import GeneralSubject
+from rest_framework.serializers import (
+    ModelSerializer,
+    SerializerMethodField,
+    DateTimeField,
+)
+
+from subjectss.models import (
+    GeneralSubject,
+    TrackWay,
+)
+from abstracts.serializers import AbstractDateTimeSerializer
 
 
-class GeneralSubjectBaseSerializer(ModelSerializer):
+class GeneralSubjectBaseSerializer(
+    AbstractDateTimeSerializer,
+    ModelSerializer
+):
+    """GeneralSubjectBaseSerializer."""
+
+    is_deleted: SerializerMethodField = AbstractDateTimeSerializer.is_deleted
+    datetime_created: DateTimeField = \
+        AbstractDateTimeSerializer.datetime_created
+
     class Meta:
+        """Customization of the GeneralSubject model reference."""
+
         model: GeneralSubject = GeneralSubject
+        fields: str | tuple[str] = "__all__"
+
+
+class TrackWayBaseSerializer(AbstractDateTimeSerializer, ModelSerializer):
+    """TrackWayBaseSerializer."""
+
+    is_deleted: SerializerMethodField = AbstractDateTimeSerializer.is_deleted
+    datetime_created: DateTimeField = \
+        AbstractDateTimeSerializer.datetime_created
+
+    class Meta:
+        model: TrackWay = TrackWay
+        fields: str | Tuple[str] = (
+            "id",
+            "name",
+            "datetime_created",
+            "datetime_deleted",
+            "is_deleted",
+        )
+
+
+class TrackWayDetailSerializer(TrackWayBaseSerializer):
+    """TrackWayDetailSerializer."""
+
+    subjects: GeneralSubjectBaseSerializer = GeneralSubjectBaseSerializer(
+        many=True
+    )
+
+    class Meta:
+        model: TrackWay = TrackWay
         fields: str | tuple[str] = "__all__"
