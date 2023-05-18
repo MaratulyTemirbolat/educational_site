@@ -228,7 +228,7 @@ class ClassSubjectViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
     """ClassSubjectViewSet."""
 
     queryset: Manager = ClassSubject.objects
-    # permission_classes: tuple[Any] = (IsNonDeletedUser,)
+    permission_classes: tuple[Any] = (IsNonDeletedUser,)
     class_serializer: ClassSubjectBaseSerializer = ClassSubjectBaseSerializer
 
     def get_queryset(self, is_deleted: bool = False) -> QuerySet[ClassSubject]:
