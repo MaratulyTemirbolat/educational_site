@@ -7,7 +7,10 @@ from typing import (
 from rest_framework.request import Request as DRF_Request
 from rest_framework.response import Response as DRF_Response
 from rest_framework.viewsets import ViewSet
-from rest_framework import status
+from rest_framework.status import (
+    HTTP_200_OK,
+    HTTP_403_FORBIDDEN,
+)
 
 from django.db.models import (
     Manager,
@@ -17,12 +20,15 @@ from django.db.models import (
 from subjectss.models import (
     GeneralSubject,
     TrackWay,
+    Class,
 )
 from subjectss.serializers import (
     GeneralSubjectBaseSerializer,
 
     TrackWayBaseSerializer,
     TrackWayDetailSerializer,
+
+    ClassBaseSerializer,
 )
 from abstracts.handlers import DRFResponseHandler
 from abstracts.mixins import ModelInstanceMixin
@@ -61,7 +67,7 @@ class GeneralSubjectViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
                 data={
                     "response": message
                 },
-                status=status.HTTP_403_FORBIDDEN
+                status=HTTP_403_FORBIDDEN
             )
         sear_queryset: QuerySet[GeneralSubject] = self.queryset.get_deleted() \
             if is_deleted else self.get_queryset()
@@ -99,7 +105,7 @@ class GeneralSubjectViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
                         instance=obj_response
                     ).data
                 },
-                status=status.HTTP_200_OK
+                status=HTTP_200_OK
             )
         return obj_response
 
@@ -130,7 +136,7 @@ class TrackWayViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
                 data={
                     "message": "Не Админ, чтобы запрашивать удалённые данные"
                 },
-                status=status.HTTP_403_FORBIDDEN
+                status=HTTP_403_FORBIDDEN
             )
         return self.get_drf_response(
             request=request,
@@ -167,6 +173,44 @@ class TrackWayViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
                         instance=obj_response
                     ).data
                 },
-                status=status.HTTP_200_OK
+                status=HTTP_200_OK
             )
         return obj_response
+
+
+class ClassViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
+    """ClassViewSet."""
+
+    queryset: Manager = Class.objects
+    # permission_classes: tuple[Any] = (IsNonDeletedUser,)
+    pagination_class: AbstractPageNumberPaginator = AbstractPageNumberPaginator
+    serializer_class: ClassBaseSerializer = ClassBaseSerializer
+
+    def get_queryset(self, is_deleted: bool = False) -> QuerySet[Class]:
+        """Get queryset of Classes by provided is_deletede property."""
+        return self.queryset.get_deleted() \
+            if is_deleted else self.queryset.get_not_deleted()
+
+    def list(
+        self,
+        request: DRF_Request,
+        *args: Tuple[Any],
+        **kwargs: Dict[str, Any]
+    ) -> DRF_Response:
+        """Handle GET-request to get the list of classes."""
+
+        is_deleted: bool = request.GET.get("is_deleted", False)
+        if is_deleted and not request.user.is_superuser:
+            return DRF_Response(
+                data={
+                    "response": "Вы не админ, чтобы запрашивать удалённых"
+                },
+                status=HTTP_403_FORBIDDEN
+            )
+        response: DRF_Response = self.get_drf_response(
+            request=request,
+            data=self.get_queryset(is_deleted=is_deleted),
+            serializer_class=self.serializer_class,
+            many=True
+        )
+        return response

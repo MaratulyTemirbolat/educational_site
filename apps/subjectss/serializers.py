@@ -9,6 +9,7 @@ from rest_framework.serializers import (
 from subjectss.models import (
     GeneralSubject,
     TrackWay,
+    Class,
 )
 from abstracts.serializers import AbstractDateTimeSerializer
 
@@ -58,3 +59,20 @@ class TrackWayDetailSerializer(TrackWayBaseSerializer):
     class Meta:
         model: TrackWay = TrackWay
         fields: str | tuple[str] = "__all__"
+
+
+class ClassBaseSerializer(AbstractDateTimeSerializer, ModelSerializer):
+    """ClassBaseSerializer."""
+
+    is_deleted: SerializerMethodField = AbstractDateTimeSerializer.is_deleted
+    datetime_created: DateTimeField = \
+        AbstractDateTimeSerializer.datetime_created
+
+    class Meta:
+        model: Class = Class
+        fields: str | tuple[str] = (
+            "id",
+            "number",
+            "datetime_created",
+            "is_deleted",
+        )
