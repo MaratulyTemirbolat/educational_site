@@ -7,6 +7,8 @@ from rest_framework.serializers import (
 
 from auths.models import CustomUser
 from abstracts.serializers import AbstractDateTimeSerializer
+from subjectss.serializers import StudentForeignSerializer
+from teaching.serializers import TeacherForeignModelSerializer
 
 
 class CustomUserSerializer(
@@ -44,6 +46,8 @@ class DetailCustomUserSerializer(
         AbstractDateTimeSerializer.is_deleted
     datetime_created: DateTimeField = \
         AbstractDateTimeSerializer.datetime_created
+    student: StudentForeignSerializer = StudentForeignSerializer()
+    teacher: TeacherForeignModelSerializer = TeacherForeignModelSerializer()
 
     class Meta:
         """Customization of the table."""
@@ -59,6 +63,8 @@ class DetailCustomUserSerializer(
             "is_staff",
             "is_active",
             "groups",
+            "student",
+            "teacher",
         )
 
 

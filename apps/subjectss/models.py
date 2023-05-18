@@ -208,6 +208,7 @@ class Student(Model):
     user: CustomUser = OneToOneField(
         to=CustomUser,
         on_delete=CASCADE,
+        related_name="student",
         verbose_name="Пользователь"
     )
     points: IntegerField = IntegerField(

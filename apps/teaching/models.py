@@ -20,6 +20,7 @@ class Teacher(Model):
     user: CustomUser = OneToOneField(
         to=CustomUser,
         on_delete=CASCADE,
+        related_name="teacher",
         verbose_name="Пользователь"
     )
     tought_subjects: ManyToManyField = ManyToManyField(

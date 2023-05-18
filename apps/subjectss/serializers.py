@@ -17,6 +17,7 @@ from subjectss.models import (
     Class,
     ClassSubject,
     Topic,
+    Student,
 )
 from abstracts.serializers import AbstractDateTimeSerializer
 from abstracts.paginators import AbstractPageNumberPaginator
@@ -172,3 +173,22 @@ class ClassSubjectDetailSerializer(ClassSubjectBaseSerializer):
             many=True
         )
         return paginator.get_dict_response(data=serializer.data)
+
+
+class StudentForeignSerializer(ModelSerializer):
+    """StudentForeignSerializer."""
+
+    class Meta:
+        model: Student = Student
+        fields: str | tuple[str] = (
+            "id",
+            "points",
+        )
+
+
+class StudentBaseSerializer(ModelSerializer):
+    """StudentBaseSerializer."""
+
+    class Meta:
+        model: Student = Student
+        fields: str | tuple[str] = "__all__"
