@@ -190,7 +190,7 @@ class ClassViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
     """ClassViewSet."""
 
     queryset: Manager = Class.objects
-    # permission_classes: tuple[Any] = (IsNonDeletedUser,)
+    permission_classes: tuple[Any] = (IsNonDeletedUser,)
     pagination_class: AbstractPageNumberPaginator = AbstractPageNumberPaginator
     serializer_class: ClassBaseSerializer = ClassBaseSerializer
 
