@@ -6,10 +6,15 @@ from django.db.models import (
     DateTimeField,
     QuerySet,
 )
+from django.db.utils import NotSupportedError
 
 
 class AbstractDateTimeQuerySet(QuerySet):
     """AbstractDateTimeQuerySet."""
+
+    def _raise_not_supported_error(self, message: str) -> None:
+        """Raise error if there is a problem that doesn't let make a query."""
+        raise NotSupportedError(message)
 
     def get_deleted(self) -> QuerySet[Model]:
         """Get deleted users."""

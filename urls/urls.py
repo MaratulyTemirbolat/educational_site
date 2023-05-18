@@ -18,6 +18,7 @@ from apps.subjectss.views import (
     GeneralSubjectViewSet,
     TrackWayViewSet,
     ClassViewSet,
+    ClassSubjectViewSet,
 )
 
 urlpatterns = [
@@ -53,6 +54,7 @@ router.register('auths/users', CustomUserViewSet)
 router.register('subjects/general_subjects', GeneralSubjectViewSet)
 router.register('subjects/trackways', TrackWayViewSet)
 router.register('subjects/classes', ClassViewSet)
+router.register('subjects/class_subjects', ClassSubjectViewSet)
 
 urlpatterns += [
     path(

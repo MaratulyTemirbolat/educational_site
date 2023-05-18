@@ -1,4 +1,7 @@
-from typing import Any
+from typing import (
+    Optional,
+    Any,
+)
 
 from django.db.models import (
     CharField,
@@ -11,12 +14,19 @@ from django.db.models import (
     URLField,
     OneToOneField,
     UniqueConstraint,
+    Manager,
     CASCADE,
 )
 
-from auths.models import CustomUser
+from auths.models import (
+    CustomUser,
+    QuerySet,
+)
 from auths.validators import validate_negative_int
-from apps.abstracts.models import AbstractDateTime
+from apps.abstracts.models import (
+    AbstractDateTime,
+    AbstractDateTimeQuerySet,
+)
 from apps.subjectss.validators import validate_negative_class_number
 
 
@@ -74,6 +84,29 @@ class Class(AbstractDateTime):
         return f"{self.number} класс"
 
 
+class ClassSubjectQuerySet(AbstractDateTimeQuerySet):
+    """ClassSubjectQuerySet."""
+
+    def get_class_subject(
+        self,
+        attached_class_id: Optional[None] = None,
+        general_subject_id: Optional[None] = None
+    ) -> QuerySet["ClassSubject"]:
+        """Get ClassSubject queryset by class_id and subj_id."""
+        if attached_class_id and general_subject_id:
+            return self.filter(
+                attached_class_id=attached_class_id,
+                general_subject_id=general_subject_id
+            )
+        elif attached_class_id:
+            return self.filter(attached_class_id=attached_class_id)
+        elif general_subject_id:
+            return self.filter(general_subject_id=general_subject_id)
+        self._raise_not_supported_error(
+            "attached_class_id или/и generat_subject_id не предоставлены"
+        )
+
+
 class ClassSubject(AbstractDateTime):
     SUBJECT_NAME_LIMIT = 200
 
@@ -97,6 +130,7 @@ class ClassSubject(AbstractDateTime):
         verbose_name="Относится к классу",
         help_text="Класс к которому относится данный предмет"
     )
+    objects: Manager = ClassSubjectQuerySet.as_manager()
 
     class Meta:
         ordering: tuple[str] = ("-datetime_updated",)

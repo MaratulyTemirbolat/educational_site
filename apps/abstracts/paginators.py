@@ -1,4 +1,9 @@
 """Abstract custom paginators."""
+from typing import (
+    Dict,
+    Any,
+)
+
 from rest_framework.response import Response as DRF_Response
 from rest_framework.pagination import (
     PageNumberPagination,
@@ -10,7 +15,7 @@ from rest_framework.utils.serializer_helpers import ReturnList
 class AbstractPageNumberPaginator(PageNumberPagination):
     """AbstractPageNumberPaginator."""
 
-    page_size: int = 5
+    page_size: int = 15
     page_size_query_param: str = 'page_size'
     page_query_param: str = 'page'
     max_page_size: int = 10
@@ -28,6 +33,17 @@ class AbstractPageNumberPaginator(PageNumberPagination):
             }
         )
         return response
+
+    def get_dict_response(self, data: ReturnList) -> Dict[str, Any]:
+        """Get paginated response as a Dictionay with filled data."""
+        return {
+            'pagination': {
+                'next': self.get_next_link(),
+                'previous': self.get_previous_link(),
+                'count': self.page.paginator.num_pages,
+            },
+            'data': data
+        }
 
 
 class AbstractLimitOffsetPaginator(LimitOffsetPagination):
