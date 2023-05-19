@@ -286,7 +286,7 @@ class ClassSubjectViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
         """Handle GET-request to obtain specific ClassSubject obj."""
         is_deleted: bool = request.query_params.get("is_deleted", False)
         is_class_subject: bool = False
-        obj_response: ClassSubject | DRF_Response 
+        obj_response: ClassSubject | DRF_Response
         obj_response, is_class_subject = self.get_obj_or_response(
             request=request,
             pk=pk,
