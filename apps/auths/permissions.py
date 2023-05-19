@@ -30,8 +30,6 @@ class IsCustomAdminUser(BasePermission):
     def has_permission(self, request: DRF_Request, view: Any) -> bool:
         is_deleted: bool = bool(request.query_params.get("is_deleted", False))
         is_admin: bool = request.user.is_superuser
-        if is_deleted and not is_admin and not self.is_user_active(
-            request=request
-        ):
+        if is_deleted and not is_admin:
             return False
         return True
