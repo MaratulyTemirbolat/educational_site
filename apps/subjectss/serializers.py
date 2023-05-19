@@ -184,11 +184,3 @@ class StudentForeignSerializer(ModelSerializer):
             "id",
             "points",
         )
-
-
-class StudentBaseSerializer(ModelSerializer):
-    """StudentBaseSerializer."""
-
-    class Meta:
-        model: Student = Student
-        fields: str | tuple[str] = "__all__"
