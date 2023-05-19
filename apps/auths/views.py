@@ -16,6 +16,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import (
     AllowAny,
     IsAdminUser,
+    IsAuthenticated,
 )
 
 from django.db.models import QuerySet
@@ -36,6 +37,7 @@ from auths.serializers import (
     DetailCustomUserSerializer,
     CreateCustomUserSerializer,
     CustomUserListStudentSerializer,
+    CustomUserListTeacherSerializer,
 )
 from teaching.permissions import IsTeacherOrUser
 
@@ -323,4 +325,76 @@ class CustomUserViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
             data=students,
             serializer_class=CustomUserListStudentSerializer,
             many=True
+        )
+
+    # НЕ ОТИМИЗИРОВАН!!!
+    @action(
+        methods=["GET"],
+        detail=False,
+        url_path="teachers",
+        url_name="get_teachers",
+        permission_classes=(IsCustomAdminUser, IsAuthenticated,)
+        # permission_classes=(AllowAny,)
+    )
+    def get_teachers(
+        self,
+        request: DRF_Request,
+        *args: Tuple[Any],
+        **kwargs: Dict[str, Any]
+    ) -> DRF_Response:
+        """Handle GET-request to obtain the list of user-teachers."""
+        is_deleted: bool = bool(request.query_params.get("is_deleted", False))
+        teachers: QuerySet[CustomUser] = self.get_queryset(
+            is_deleted=is_deleted
+        ).filter(teacher__isnull=False).select_related(
+            "teacher",
+            "teacher__subscription",
+            "teacher__status_subscription"
+        )
+
+        return self.get_drf_response(
+            request=request,
+            data=teachers,
+            serializer_class=CustomUserListTeacherSerializer,
+            many=True,
+            paginator=self.pagination_class()
+        )
+
+    @action(
+        methods=["PATCH"],
+        detail=True,
+        url_path="recover",
+        url_name="recover_user",
+        permission_classes=(IsAdminUser,)
+    )
+    def recover(
+        self,
+        request: DRF_Request,
+        pk: int | str,
+        *args: Tuple[Any],
+        **kwargs: Dict[str, Any]
+    ) -> DRF_Response:
+        """Hadle GET, POST requests to recover the user if deleted."""
+
+        user_response: DRF_Response | CustomUser
+        is_user: bool = False
+        user_response, is_user = self.get_obj_or_response(
+            request=request,
+            pk=pk,
+            class_name=CustomUser,
+            queryset=self.get_queryset(is_deleted=True)
+        )
+        if is_user:
+            user_response.recover()
+            return self.get_drf_response(
+                request=request,
+                data=user_response,
+                serializer_class=DetailCustomUserSerializer
+            )
+        msg: str = f"Пользователь с id: {pk} не существует или он не удалён"
+        return DRF_Response(
+            data={
+                "response": msg
+            },
+            status=status.HTTP_404_NOT_FOUND
         )
