@@ -46,6 +46,8 @@ class TeacherForeignModelSerializer(ModelSerializer):
 
     def get_is_expired_subscription(self, obj: Teacher) -> bool:
         """Get if the subscription is expired or not."""
+        if not obj.subscription or not obj.datetime_created:
+            return None
         cur_datetime: datetime = datetime.now(tz=utc)
         expired_datetime: datetime = (obj.datetime_created + relativedelta(
             months=obj.subscription.duration
