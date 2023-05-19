@@ -45,6 +45,25 @@ class GeneralSubjectBaseSerializer(
         )
 
 
+class ClassSubjectShortSerializer(AbstractDateTimeSerializer, ModelSerializer):
+    """ClassSubjectShortSerializer."""
+
+    is_deleted: SerializerMethodField = AbstractDateTimeSerializer.is_deleted
+    datetime_created: DateTimeField = \
+        AbstractDateTimeSerializer.datetime_created
+
+    class Meta:
+        """Customization of the Serializer."""
+
+        model: ClassSubject = ClassSubject
+        fields: Tuple[str] | str = (
+            "id",
+            "name",
+            "is_deleted",
+            "datetime_created",
+        )
+
+
 class TopicBaseSerializer(AbstractDateTimeSerializer, ModelSerializer):
     """TopicBaseSerializer."""
 
@@ -68,6 +87,36 @@ class TopicBaseSerializer(AbstractDateTimeSerializer, ModelSerializer):
     def get_short_content(self, obj: Topic) -> str:
         """Get shoted content."""
         return f"{obj.content[:50]}..." if obj else ""
+
+
+class TopicListSerializer(AbstractDateTimeSerializer, ModelSerializer):
+    """TopicListSerializer."""
+
+    is_deleted: SerializerMethodField = AbstractDateTimeSerializer.is_deleted
+    datetime_created: DateTimeField = \
+        AbstractDateTimeSerializer.datetime_created
+    attached_subect_class: ClassSubjectShortSerializer = \
+        ClassSubjectShortSerializer()
+
+    class Meta:
+        """Customization of the Serializer."""
+
+        model: Topic = Topic
+        exclude: Tuple[str] = (
+            "content",
+            "content_file",
+            "video_url",
+        )
+
+
+class TopicDetailSerializer(TopicListSerializer):
+    """TopicDetailSerializer."""
+
+    class Meta:
+        """Customization of the Serializer."""
+
+        model: Topic = Topic
+        fields: Tuple[str] | str = "__all__"
 
 
 class TrackWayBaseSerializer(AbstractDateTimeSerializer, ModelSerializer):

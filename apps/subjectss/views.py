@@ -8,6 +8,7 @@ from typing import (
 from rest_framework.request import Request as DRF_Request
 from rest_framework.response import Response as DRF_Response
 from rest_framework.viewsets import ViewSet
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.status import (
     HTTP_200_OK,
     HTTP_403_FORBIDDEN,
@@ -25,6 +26,7 @@ from subjectss.models import (
 
     ClassSubject,
     ClassSubjectQuerySet,
+    Topic,
 )
 from subjectss.serializers import (
     GeneralSubjectBaseSerializer,
@@ -36,12 +38,18 @@ from subjectss.serializers import (
 
     ClassSubjectBaseSerializer,
     ClassSubjectDetailSerializer,
+
+    TopicBaseSerializer,
+    TopicListSerializer,
+    TopicDetailSerializer,
 )
 from abstracts.handlers import DRFResponseHandler
 from abstracts.mixins import ModelInstanceMixin
 from abstracts.paginators import AbstractPageNumberPaginator
+from abstracts.models import AbstractDateTimeQuerySet
 from auths.permissions import IsNonDeletedUser
 from abstracts.tools import conver_to_int_or_none
+from auths.permissions import IsCustomAdminUser
 
 
 class GeneralSubjectViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
@@ -305,5 +313,78 @@ class ClassSubjectViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
                 request=request,
                 data=obj_response,
                 serializer_class=ClassSubjectDetailSerializer
+            )
+        return obj_response
+
+
+class TopicViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
+    """TopicViewSet."""
+
+    queryset: Manager = Topic.objects
+    permission_classes: Tuple[Any] = (
+        IsAuthenticated,
+        IsCustomAdminUser,
+    )
+    class_serializer: TopicBaseSerializer = TopicBaseSerializer
+
+    def get_queryset(
+        self,
+        is_deleted: bool = False
+    ) -> AbstractDateTimeQuerySet[Topic]:
+        """Get queryset of Topics by is_deleted property."""
+        return self.queryset.get_deleted() \
+            if is_deleted else self.queryset.get_not_deleted()
+
+    def list(
+        self,
+        request: DRF_Request,
+        *args: Tuple[Any],
+        **kwargs: Dict[str, Any]
+    ) -> DRF_Response:
+        """Handle GET-request to view all topics."""
+        is_deleted: bool = bool(request.query_params.get("is_deleted", False))
+        subject_class_id: Optional[int] = conver_to_int_or_none(
+            request.query_params.get("subject_class_id", "")
+        )
+        res_queryset: AbstractDateTimeQuerySet[Topic] = self.get_queryset(
+            is_deleted=is_deleted
+        ).select_related("attached_subect_class")
+        if subject_class_id:
+            res_queryset = res_queryset.filter(
+                attached_subect_class_id=subject_class_id
+            )
+        return self.get_drf_response(
+            request=request,
+            data=res_queryset,
+            serializer_class=TopicListSerializer,
+            many=True,
+            paginator=AbstractPageNumberPaginator()
+        )
+
+    def retrieve(
+        self,
+        request: DRF_Request,
+        pk: int | str,
+        *args: Tuple[Any],
+        **kwargs: Dict[str, Any]
+    ) -> DRF_Response:
+        """Handle GET request with provided id."""
+        is_deleted: bool = bool(
+            request.query_params.get("is_deleted", False)
+        )
+        obj_response: Topic | DRF_Response
+        is_obj: bool = False
+        obj_response, is_obj = self.get_obj_or_response(
+            request=request,
+            pk=pk,
+            class_name=Topic,
+            queryset=self.get_queryset(is_deleted=is_deleted),
+            is_deleted=is_deleted
+        )
+        if is_obj:
+            return self.get_drf_response(
+                request=request,
+                data=obj_response,
+                serializer_class=TopicDetailSerializer
             )
         return obj_response
