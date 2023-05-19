@@ -96,3 +96,29 @@ class ForeignCustomUserSerializer(ModelSerializer):
             "first_name",
             "last_name",
         )
+
+
+class CustomUserListStudentSerializer(
+    AbstractDateTimeSerializer,
+    ModelSerializer
+):
+    """CustomUserListStudentSerializer."""
+
+    is_deleted: SerializerMethodField = AbstractDateTimeSerializer.is_deleted
+    datetime_created: DateTimeField = \
+        AbstractDateTimeSerializer.datetime_created
+    student: StudentForeignSerializer = StudentForeignSerializer()
+
+    class Meta:
+        model: CustomUser = CustomUser
+        fields: str | tuple[str] = (
+            "id",
+            "email",
+            "first_name",
+            "last_name",
+            "is_active",
+            "is_staff",
+            "is_deleted",
+            "datetime_created",
+            "student",
+        )
