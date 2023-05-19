@@ -166,3 +166,12 @@ class CustomUser(
             self.save(
                 update_fields=['is_active']
             )
+
+    def recover(self, *args: tuple[Any], **kwargs: dict[str, Any]) -> None:
+        """Recover the user if it is deleted."""
+
+        if self.datetime_deleted:
+            self.datetime_deleted = None
+            self.save(
+                update_fields=['datetime_deleted']
+            )
