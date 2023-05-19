@@ -23,7 +23,10 @@ from django.db.models import QuerySet
 from abstracts.mixins import ModelInstanceMixin
 from abstracts.handlers import DRFResponseHandler
 from abstracts.paginators import AbstractPageNumberPaginator
-from auths.permissions import IsNonDeletedUser
+from auths.permissions import (
+    IsNonDeletedUser,
+    IsCustomAdminUser,
+)
 from auths.models import (
     CustomUser,
     CustomUserManager,
@@ -32,14 +35,19 @@ from auths.serializers import (
     CustomUserSerializer,
     DetailCustomUserSerializer,
     CreateCustomUserSerializer,
+    CustomUserListStudentSerializer,
 )
+from teaching.permissions import IsTeacherOrUser
 
 
 class CustomUserViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
     """CustomUserViewSet."""
 
     queryset: CustomUserManager = CustomUser.objects
-    permission_classes: tuple[Any] = (IsNonDeletedUser, IsAdminUser,)
+    permission_classes: tuple[Any] = (
+        IsNonDeletedUser,
+        IsCustomAdminUser,
+    )
     pagination_class: AbstractPageNumberPaginator = \
         AbstractPageNumberPaginator
     serializer_class: CustomUserSerializer = CustomUserSerializer
@@ -289,4 +297,30 @@ class CustomUserViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
                 "message": f"Пользователь {user} успешно разблокирован"
             },
             status=status.HTTP_202_ACCEPTED
+        )
+
+    @action(
+        methods=["GET"],
+        detail=False,
+        url_path="students",
+        url_name="get_students",
+        permission_classes=(IsCustomAdminUser, IsTeacherOrUser,)
+    )
+    def get_students(
+        self,
+        request: DRF_Request,
+        *args: Tuple[Any],
+        **kwargs: Dict[str, Any]
+    ) -> DRF_Response:
+        """Handle GET-request on students to view the list."""
+        is_deleted: bool = bool(request.query_params.get("is_deleted", False))
+        students: QuerySet[CustomUser] = self.get_queryset(
+            is_deleted=is_deleted
+        ).filter(student__isnull=False)\
+            .select_related("student")
+        return self.get_drf_response(
+            request=request,
+            data=students,
+            serializer_class=CustomUserListStudentSerializer,
+            many=True
         )
