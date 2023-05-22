@@ -109,3 +109,23 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
+
+# ------------------------------------------------
+# CORS CONFIGURATION
+#
+CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ALLOW_HEADERS = (
+    'accept',
+    'authorization',
+    'content-type',
+    'user-agent',
+    'Access-Control-Allow-Origin',
+)
+CORS_ALLOW_METHODS = (
+    'DELETE',
+    'GET',
+    'PUT',
+    'PATCH',
+    'POST',
+)
