@@ -20,6 +20,7 @@ from rest_framework.permissions import (
 )
 
 from django.db.models import QuerySet
+from django.contrib.auth import login
 
 from abstracts.mixins import ModelInstanceMixin
 from abstracts.handlers import DRFResponseHandler
@@ -441,6 +442,12 @@ class CustomUserViewSet(
                     data={"response": "Ваш пароль не соостветствует"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
+            if not user.is_active:
+                return DRF_Response(
+                    data={"response": "Ваш аккаунт неактивный"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            login(request=request, user=user)
             refresh_token: RefreshToken = RefreshToken.for_user(user=user)
             det_ser: DetailCustomUserSerializer = DetailCustomUserSerializer(
                 instance=user,
