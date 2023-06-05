@@ -227,9 +227,16 @@ class ClassSubjectDetailSerializer(ClassSubjectBaseSerializer):
 class StudentForeignSerializer(ModelSerializer):
     """StudentForeignSerializer."""
 
+    registered_subjects: ClassSubjectShortSerializer = \
+        ClassSubjectShortSerializer(
+            many=True,
+            read_only=True
+        )
+
     class Meta:
         model: Student = Student
         fields: str | tuple[str] = (
             "id",
             "points",
+            "registered_subjects",
         )
