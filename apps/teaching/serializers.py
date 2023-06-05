@@ -8,10 +8,12 @@ from rest_framework.serializers import (
     DateTimeField,
     SerializerMethodField,
 )
+
 from subscriptions.serializers import (
     SubscriptionForeignSerializer,
     StatusForeignSerializer,
 )
+from subjectss.serializers import ClassSubjectShortSerializer
 from teaching.models import Teacher
 
 utc = pytz.UTC
@@ -30,6 +32,10 @@ class TeacherForeignModelSerializer(ModelSerializer):
     subscription: SubscriptionForeignSerializer = \
         SubscriptionForeignSerializer()
     status_subscription: StatusForeignSerializer = StatusForeignSerializer()
+    tought_subjects: ClassSubjectShortSerializer = ClassSubjectShortSerializer(
+        read_only=True,
+        many=True
+    )
 
     class Meta:
         """Customization of the Serializer."""
@@ -42,6 +48,7 @@ class TeacherForeignModelSerializer(ModelSerializer):
             "status_subscription",
             "datetime_created",
             "is_expired_subscrs",
+            "tought_subjects",
         )
 
     def get_is_expired_subscription(self, obj: Teacher) -> bool:
