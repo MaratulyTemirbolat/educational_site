@@ -2,6 +2,9 @@ from rest_framework.serializers import (
     ModelSerializer,
     SerializerMethodField,
     DateTimeField,
+    Serializer,
+    EmailField,
+    CharField,
 )
 
 
@@ -147,4 +150,18 @@ class CustomUserListTeacherSerializer(
             "is_deleted",
             "datetime_created",
             "teacher",
+        )
+
+
+class CustomUserLoginSerializer(Serializer):
+    """CustomUserLoginSerializer."""
+
+    email: EmailField = EmailField()
+    password: CharField = CharField()
+
+    class Meta:
+        """Customization of the Serializer."""
+        fields: tuple[str] = (
+            "email",
+            "password",
         )
