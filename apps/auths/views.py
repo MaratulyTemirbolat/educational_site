@@ -38,11 +38,18 @@ from auths.serializers import (
     CreateCustomUserSerializer,
     CustomUserListStudentSerializer,
     CustomUserListTeacherSerializer,
+    CustomUserLoginSerializer,
 )
+from auths.mixins import EmailObjectMixin
 from teaching.permissions import IsTeacherOrUser
 
 
-class CustomUserViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
+class CustomUserViewSet(
+    EmailObjectMixin,
+    ModelInstanceMixin,
+    DRFResponseHandler,
+    ViewSet
+):
     """CustomUserViewSet."""
 
     queryset: CustomUserManager = CustomUser.objects
@@ -397,4 +404,57 @@ class CustomUserViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
                 "response": msg
             },
             status=status.HTTP_404_NOT_FOUND
+        )
+
+    @action(
+        methods=["POST"],
+        detail=False,
+        url_path="login",
+        url_name="login",
+        permission_classes=(AllowAny,)
+    )
+    def login(
+        self,
+        request: DRF_Request,
+        *args: Tuple[Any],
+        **kwargs: Dict[str, Any]
+    ) -> DRF_Response:
+        """Handle POST-request to login user."""
+
+        serializer: CustomUserLoginSerializer = CustomUserLoginSerializer(
+            data=request.data
+        )
+        if serializer.is_valid():
+            user: Optional[CustomUser] = self.get_user_by_email(
+                email=request.data.get("email", "")
+            )
+            if not user:
+                return DRF_Response(
+                    data={"response": "Нет пользователя с таким 'email'"},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            are_same: bool = user.check_password(
+                raw_password=request.data.get("password", "")
+            )
+            if not are_same:
+                return DRF_Response(
+                    data={"response": "Ваш пароль не соостветствует"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            refresh_token: RefreshToken = RefreshToken.for_user(user=user)
+            det_ser: DetailCustomUserSerializer = DetailCustomUserSerializer(
+                instance=user,
+                many=False
+            )
+            resulted_data: dict[str, Any] = det_ser.data.copy()
+            resulted_data.setdefault("refresh", str(refresh_token))
+            resulted_data.setdefault("access", str(refresh_token.access_token))
+            response: DRF_Response = DRF_Response(
+                data=resulted_data,
+                status=status.HTTP_200_OK
+            )
+            return response
+        return DRF_Response(
+            data=serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
         )
