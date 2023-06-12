@@ -21,6 +21,7 @@ from apps.subjectss.views import (
     ClassSubjectViewSet,
     TopicViewSet,
 )
+from apps.chats.views import PersonalChatViewSet
 from apps.chats import consumers
 
 
@@ -45,10 +46,13 @@ urlpatterns = [
         TokenVerifyView.as_view(),
         name='token_verify'
     ),
-    path(
-        '',
-        include('chats.urls')
-    )
+
+
+    # MVC routes
+    # path(
+    #     '',
+    #     include('chats.urls')
+    # )
 ]
 
 if settings.DEBUG:
@@ -67,6 +71,7 @@ router.register('subjects/trackways', TrackWayViewSet)
 router.register('subjects/classes', ClassViewSet)
 router.register('subjects/class_subjects', ClassSubjectViewSet)
 router.register('subjects/topics', TopicViewSet)
+router.register('chats/chats', PersonalChatViewSet)
 
 urlpatterns += [
     path(
