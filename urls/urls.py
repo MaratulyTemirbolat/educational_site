@@ -21,6 +21,12 @@ from apps.subjectss.views import (
     ClassSubjectViewSet,
     TopicViewSet,
 )
+from apps.chats import consumers
+
+
+websocket_urlpatterns = [
+    path('ws/chats/<int:chat_id>/', consumers.ChatConsumer.as_asgi()),
+]
 
 urlpatterns = [
     path(settings.ADMIN_SITE_URL, admin.site.urls),
@@ -39,6 +45,10 @@ urlpatterns = [
         TokenVerifyView.as_view(),
         name='token_verify'
     ),
+    path(
+        '',
+        include('chats.urls')
+    )
 ]
 
 if settings.DEBUG:
