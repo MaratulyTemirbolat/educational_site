@@ -4,7 +4,7 @@ from settings.base import *  # noqa
 #
 DEBUG = True
 WSGI_APPLICATION = None
-ASGI_APLLICATION = None
+ASGI_APPLICATION = 'deploy.test.asgi.application'
 
 # ----------------------------------------------
 #
@@ -21,3 +21,12 @@ ALLOWED_HOSTS = [
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
+
+# ----------------------------------------------
+# Channels configuration
+#
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer'
+    },
+}

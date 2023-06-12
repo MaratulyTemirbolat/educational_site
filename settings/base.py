@@ -28,6 +28,7 @@ DJANGO_AND_THIRD_PARTY_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'channels',
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
