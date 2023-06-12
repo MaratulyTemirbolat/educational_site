@@ -12,6 +12,8 @@ from auths.models import CustomUser
 from abstracts.serializers import AbstractDateTimeSerializer
 from subjectss.serializers import StudentForeignSerializer
 from teaching.serializers import TeacherForeignModelSerializer
+from subjectss.models import Student
+from teaching.models import Teacher
 
 
 class CustomUserSerializer(
@@ -164,4 +166,56 @@ class CustomUserLoginSerializer(Serializer):
         fields: tuple[str] = (
             "email",
             "password",
+        )
+
+
+class CustomUserForeignSerializer(AbstractDateTimeSerializer, ModelSerializer):
+    """CustomUserForeignSerializer."""
+
+    is_deleted: SerializerMethodField = \
+        AbstractDateTimeSerializer.is_deleted
+    datetime_created: DateTimeField = \
+        AbstractDateTimeSerializer.datetime_created
+
+    class Meta:
+        """Customization of the serializer."""
+
+        model: CustomUser = CustomUser
+        fields: tuple[str] | str = (
+            "id",
+            "email",
+            "first_name",
+            "last_name",
+            "is_active",
+            "is_staff",
+            "datetime_created",
+            "is_deleted",
+        )
+
+
+class StudentChatForeignSerializer(ModelSerializer):
+    """StudentChatSerializer."""
+    user: CustomUserForeignSerializer = CustomUserForeignSerializer()
+
+    class Meta:
+        model: Student = Student
+        fields: str | tuple[str] = (
+            "id",
+            "user",
+            "points",
+        )
+
+
+class TeacherChatForeignSerializer(ModelSerializer):
+    """TeacherChatForeignSerializer."""
+
+    user: CustomUserForeignSerializer = CustomUserForeignSerializer()
+
+    class Meta:
+        """Customization of the Serializer."""
+
+        model: Teacher = Teacher
+        fields: tuple[str] | str = (
+            "id",
+            "user",
         )
