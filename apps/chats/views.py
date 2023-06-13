@@ -17,11 +17,11 @@ from django.db.models import (
 from abstracts.mixins import ModelInstanceMixin
 from abstracts.handlers import DRFResponseHandler
 from abstracts.paginators import AbstractPageNumberPaginator
-
 from chats.models import PersonalChat
 from chats.serializers import (
     PersonalChatBaseModelSerializer,
     PersonalChatListSerializer,
+    PersonalChatDetailSerializer,
 )
 from auths.permissions import IsNonDeletedUser
 
@@ -30,7 +30,7 @@ class PersonalChatViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
     """PersonalChatViewSet."""
 
     queryset: Manager = PersonalChat.objects
-    permission_classes: tuple[Any] = (IsNonDeletedUser,)
+    # permission_classes: tuple[Any] = (IsNonDeletedUser,)
     pagination_class: AbstractPageNumberPaginator = \
         AbstractPageNumberPaginator
     serializer_class: PersonalChatBaseModelSerializer = \
@@ -39,7 +39,7 @@ class PersonalChatViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
     def get_queryset(self, is_deleted: bool = False) -> QuerySet[PersonalChat]:
         """Get not deleted chats."""
         return self.queryset.get_deleted() \
-            if is_deleted else self.queryset.get_not_deleted() 
+            if is_deleted else self.queryset.get_not_deleted()
 
     def list(
         self,
@@ -62,12 +62,47 @@ class PersonalChatViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
             request=request,
             data=self.get_queryset(is_deleted=is_deleted).filter(
                 Q(student__user=request.user) | Q(teacher__user=request.user)
+            ).select_related(
+                "student",
+                "teacher",
+                "student__user",
+                "teacher__user"
             ),
             serializer_class=PersonalChatListSerializer,
             many=True,
             paginator=self.pagination_class()
         )
         return response
+
+    def retrieve(
+        self,
+        request: DRF_Request,
+        pk: int,
+        *args: tuple[Any],
+        **kwargs: dict[str, Any]
+    ) -> DRF_Response:
+        """Handle GET-request with provided id chat."""
+        res_chat: PersonalChat | DRF_Response
+        is_existed: bool = False
+        res_chat, is_existed = self.get_obj_or_response(
+            request=request,
+            pk=pk,
+            class_name=PersonalChat,
+            queryset=self.get_queryset().select_related(
+                "student",
+                "teacher",
+                "student__user",
+                "teacher__user",
+            )
+        )
+
+        if not is_existed:
+            return res_chat
+        return self.get_drf_response(
+            request=request,
+            data=res_chat,
+            serializer_class=PersonalChatDetailSerializer
+        )
 
 # def index(request):
 #     return render(request=request, template_name='chat/index.html')
