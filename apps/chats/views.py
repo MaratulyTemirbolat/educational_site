@@ -30,7 +30,7 @@ class PersonalChatViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
     """PersonalChatViewSet."""
 
     queryset: Manager = PersonalChat.objects
-    # permission_classes: tuple[Any] = (IsNonDeletedUser,)
+    permission_classes: tuple[Any] = (IsNonDeletedUser,)
     pagination_class: AbstractPageNumberPaginator = \
         AbstractPageNumberPaginator
     serializer_class: PersonalChatBaseModelSerializer = \
