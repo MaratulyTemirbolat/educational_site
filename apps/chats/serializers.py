@@ -4,6 +4,8 @@ from rest_framework.serializers import (
     ModelSerializer,
     DateTimeField,
     SerializerMethodField,
+    HiddenField,
+    CurrentUserDefault,
 )
 
 from abstracts.serializers import AbstractDateTimeSerializer
@@ -18,6 +20,17 @@ from auths.serializers import (
     CustomUserForeignSerializer,
 )
 from abstracts.paginators import AbstractPageNumberPaginator
+
+
+class CurrentChatSerializer:
+
+    requires_context = True
+
+    def __call__(self, serializer_field):
+        return serializer_field.context['to_chat']
+
+    def __repr__(self):
+        return '%s()' % self.__class__.__name__
 
 
 class MessageBaseModelSerializer(AbstractDateTimeSerializer, ModelSerializer):
@@ -36,6 +49,28 @@ class MessageBaseModelSerializer(AbstractDateTimeSerializer, ModelSerializer):
             "owner",
             "is_deleted",
             "datetime_created",
+        )
+
+
+class MessageCreateModelSerializer(ModelSerializer):
+    """MessageCreateModelSerializer."""
+
+    owner: HiddenField = HiddenField(
+        default=CurrentUserDefault()
+    )
+    to_chat: HiddenField = HiddenField(
+        default=CurrentChatSerializer()
+    )
+
+    class Meta:
+        """Customization of the Serializer."""
+
+        model: Message = Message
+        fields: tuple[str] | str = (
+            "id",
+            "content",
+            "owner",
+            "to_chat",
         )
 
 
