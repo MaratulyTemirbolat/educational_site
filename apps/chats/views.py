@@ -58,7 +58,7 @@ class PersonalChatViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
         """Handle GET-request to obtain non_deleted chats."""
         is_deleted: bool = bool(request.query_params.get("is_deleted", False))
 
-        if is_deleted and not request.user.issuperuser:
+        if is_deleted and not request.user.is_superuser:
             return DRF_Response(
                 data={
                     "response": "Вы не можете запрашивать удалённые чаты"

@@ -22,6 +22,9 @@ from apps.subjectss.views import (
     TopicViewSet,
 )
 from apps.chats.views import PersonalChatViewSet
+from apps.tests.views import (
+    QuizTypeViewSet,
+)
 from apps.chats import consumers
 
 
@@ -72,6 +75,7 @@ router.register('subjects/classes', ClassViewSet)
 router.register('subjects/class_subjects', ClassSubjectViewSet)
 router.register('subjects/topics', TopicViewSet)
 router.register('chats/chats', PersonalChatViewSet)
+router.register('tests/quiz_types', QuizTypeViewSet)
 
 urlpatterns += [
     path(
