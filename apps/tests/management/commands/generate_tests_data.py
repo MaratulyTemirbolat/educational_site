@@ -100,8 +100,8 @@ class Command(BaseCommand):
         questions_id: tuple[int] = tuple(
             Question.objects.values_list("id", flat=True)
         )
-        is_correct: tuple[bool] = (True, False,)
         is_existed: bool = False
+        is_correct_ans: bool = False
         name: str = ""
         answers_number: int = 0
         created_number: int = 0
@@ -109,6 +109,7 @@ class Command(BaseCommand):
         question_id: int
         for question_id in questions_id:
             answers_number = choice(self.__answers_number)
+            is_correct_ans = True
             _: int
             for _ in range(answers_number):
                 name = choice(self.__answers_template)
@@ -120,8 +121,9 @@ class Command(BaseCommand):
                     Answer.objects.create(
                         name=name,
                         question_id=question_id,
-                        is_correct=choice(is_correct)
+                        is_correct=is_correct_ans
                     )
+                    is_correct_ans = False
                     created_number += 1
         print(f"{created_number} ответов успешно создано и добавлено в базу")
 
@@ -146,6 +148,7 @@ class Command(BaseCommand):
         for _ in range(required_number):
             quiz_type = choice(all_quiz_types)
             quiz = Quiz(
+                name=f"Тест №{created_quizes}",
                 student_id=choice(all_students),
                 quiz_type=quiz_type
             )
@@ -156,32 +159,25 @@ class Command(BaseCommand):
         cur_question: Question = choice(all_questions)
         user_answer: Answer = choice(cur_question.answers.all())
         created_quiz_answers: int = 0
-        correct_answers_number: int = 0
         is_existed_user_quest_answ: bool = False
         quiz: Quiz
         for quiz in all_quizes:
             question_number: int = get_questions_number(quiz.quiz_type.name)
-            correct_answers_number = 0
             _: int
             for _ in range(question_number):
                 cur_question = choice(all_questions)
                 user_answer = choice(cur_question.answers.all())
                 is_existed_user_quest_answ = QuizQuestionAnswer.objects.filter(
                     quiz_id=quiz.id,
-                    question_id=cur_question.id,
-                    user_answer=user_answer.id
+                    question_id=cur_question.id
                 ).exists()
                 if not is_existed_user_quest_answ:
                     QuizQuestionAnswer.objects.create(
                         quiz=quiz,
                         question=cur_question,
-                        user_answer=user_answer,
-                        answer_point=1 if user_answer.is_correct else 0
+                        user_answer=user_answer
                     )
-                    correct_answers_number = correct_answers_number + 1 \
-                        if user_answer.is_correct else correct_answers_number
                     created_quiz_answers += 1
-            quiz.correct_answers = correct_answers_number
 
         print(f"{created_quizes} тестов успешно создано")
         print(f"{created_quiz_answers} ответов на тесты успешно создано")

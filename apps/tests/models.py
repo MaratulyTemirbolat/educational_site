@@ -7,17 +7,13 @@ from django.db.models import (
     BooleanField,
     ManyToManyField,
     UniqueConstraint,
-    IntegerField,
+    DateTimeField,
     CASCADE,
 )
 
 from abstracts.models import AbstractDateTime
 from subjectss.models import Topic
 from subjectss.models import Student
-from tests.validators import (
-    validate_questions_number,
-    validate_negative_point,
-)
 
 
 class QuizType(AbstractDateTime):
@@ -95,6 +91,11 @@ class Answer(AbstractDateTime):
 
 
 class Quiz(Model):
+    QUIZ_MAX_NAME = 250
+    name: CharField = CharField(
+        max_length=QUIZ_MAX_NAME,
+        verbose_name="Название теста"
+    )
     student: Student = ForeignKey(
         to=Student,
         on_delete=CASCADE,
@@ -113,10 +114,9 @@ class Quiz(Model):
         through_fields=["quiz", "question"],
         verbose_name="Вопросы на предмет"
     )
-    correct_answers: IntegerField = IntegerField(
-        default=0,
-        validators=(validate_questions_number,),
-        verbose_name="Количество правильных ответов"
+    datetime_created: DateTimeField = DateTimeField(
+        verbose_name="время и дата создания",
+        auto_now_add=True
     )
 
     class Meta:
@@ -146,19 +146,14 @@ class QuizQuestionAnswer(Model):
         related_name="user_answer",
         verbose_name="Ответ пользователя"
     )
-    answer_point: IntegerField = IntegerField(
-        default=0,
-        validators=[validate_negative_point],
-        verbose_name="Баллы за ответ"
-    )
 
     class Meta:
         verbose_name: str = "Ответ на вопрос теста"
         verbose_name_plural: str = "Ответы на вопросы тестов"
         constraints: tuple[Any] = (
             UniqueConstraint(
-                fields=['quiz', 'question', 'user_answer'],
-                name="unique_quiz_question_user_answer"
+                fields=['quiz', 'question'],
+                name="unique_quiz_question"
             ),
         )
 

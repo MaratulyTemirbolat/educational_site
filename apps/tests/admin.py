@@ -168,7 +168,6 @@ class QuizAdmin(ModelAdmin):
         "id",
         "student",
         "quiz_type",
-        "correct_answers",
     )
     list_display_links: tuple[str] = (
         "id",
@@ -193,7 +192,6 @@ class QuizAdmin(ModelAdmin):
             return self.readonly_fields + (
                 "student",
                 "quiz_type",
-                "correct_answers",
             )
         return self.readonly_fields
 
@@ -204,7 +202,6 @@ class QuizQuestionAnswerAdmin(ModelAdmin):
         "id",
         "quiz",
         "get_short_question",
-        "answer_point",
         "user_answer",
         "get_is_correct_answer",
     )
@@ -224,7 +221,7 @@ class QuizQuestionAnswerAdmin(ModelAdmin):
     fields: tuple[str] = (
         "quiz",
         "question",
-        "answer_point",
+        "user_answer",
     )
     list_per_page: int = 25
 
@@ -263,6 +260,7 @@ class QuizQuestionAnswerAdmin(ModelAdmin):
             return self.readonly_fields + (
                 "answer_point",
                 "question",
+                "user_answer",
                 "quiz",
             )
         return self.readonly_fields
