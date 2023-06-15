@@ -9,9 +9,11 @@ from rest_framework.request import Request as DRF_Request
 from rest_framework.response import Response as DRF_Response
 from rest_framework.viewsets import ViewSet
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
 from rest_framework.status import (
     HTTP_200_OK,
     HTTP_403_FORBIDDEN,
+    HTTP_400_BAD_REQUEST,
 )
 
 from django.db.models import (
@@ -27,6 +29,8 @@ from subjectss.models import (
     ClassSubject,
     ClassSubjectQuerySet,
     Topic,
+    StudentRegisteredSubjects,
+    StudentSubjectState,
 )
 from subjectss.serializers import (
     GeneralSubjectBaseSerializer,
@@ -43,6 +47,7 @@ from subjectss.serializers import (
     TopicListSerializer,
     TopicDetailSerializer,
 )
+from subjectss.permissions import IsStudent
 from abstracts.handlers import DRFResponseHandler
 from abstracts.mixins import ModelInstanceMixin
 from abstracts.paginators import AbstractPageNumberPaginator
@@ -315,6 +320,61 @@ class ClassSubjectViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
                 serializer_class=ClassSubjectDetailSerializer
             )
         return obj_response
+
+    @action(
+        methods=["POST"],
+        detail=True,
+        url_path="register",
+        permission_classes=(
+            IsStudent,
+            IsNonDeletedUser,
+            IsAuthenticated,
+        )
+    )
+    def register_students(
+        self,
+        request: DRF_Request,
+        pk: int,
+        *args: tuple[Any],
+        **kwargs: dict[Any, Any]
+    ) -> DRF_Response:
+        """Handle POST-request to register user for subject."""
+
+        is_class_subject: bool = False
+        obj_response: ClassSubject | DRF_Response
+        obj_response, is_class_subject = self.get_obj_or_response(
+            request=request,
+            pk=pk,
+            class_name=ClassSubject,
+            queryset=self.get_queryset()
+        )
+
+        if not is_class_subject:
+            return obj_response
+
+        is_existed: bool = StudentRegisteredSubjects.objects.filter(
+            student=request.user.student,
+            class_subject=obj_response
+        ).exists()
+
+        if is_existed:
+            return DRF_Response(
+                data={
+                    "response": "Вы уже зарегестрированы!"
+                },
+                status=HTTP_400_BAD_REQUEST
+            )
+        StudentRegisteredSubjects.objects.create(
+            student=request.user.student,
+            class_subject=obj_response,
+            current_state_id=1
+        )
+        return DRF_Response(
+            data={
+                "response": "Вы успешно зарегестрировались на предмет"
+            },
+            status=HTTP_200_OK
+        )
 
 
 class TopicViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
