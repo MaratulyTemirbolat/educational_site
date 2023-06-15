@@ -27,6 +27,30 @@ class CurrentStudentSerializer:
         return '%s()' % self.__class__.__name__
 
 
+class AnswerForeignModelSerializer(
+    AbstractDateTimeSerializer,
+    ModelSerializer
+):
+    """AnswerForeignModelSerializer."""
+
+    is_deleted: SerializerMethodField = AbstractDateTimeSerializer.is_deleted
+    datetime_created: DateTimeField = \
+        AbstractDateTimeSerializer.datetime_created
+
+    class Meta:
+        """Customization of the Serializer."""
+
+        model: Answer = Answer
+        fields: tuple[str] | str = (
+            "id",
+            "name",
+            "is_correct",
+            "question",
+            "is_deleted",
+            "datetime_created",
+        )
+
+
 class QuizTypeBaseSerializer(
     AbstractDateTimeSerializer,
     ModelSerializer
@@ -58,6 +82,9 @@ class QuestionForeignModelSerializer(
     is_deleted: SerializerMethodField = AbstractDateTimeSerializer.is_deleted
     datetime_created: DateTimeField = \
         AbstractDateTimeSerializer.datetime_created
+    answers: AnswerForeignModelSerializer = AnswerForeignModelSerializer(
+        many=True
+    )
 
     class Meta:
         """Customization of the Serializer."""
@@ -66,32 +93,10 @@ class QuestionForeignModelSerializer(
         fields: tuple[str] | str = (
             "id",
             "name",
+            "attached_subject_class",
             "is_deleted",
             "datetime_created",
-        )
-
-
-class AnswerForeignModelSerializer(
-    AbstractDateTimeSerializer,
-    ModelSerializer
-):
-    """AnswerForeignModelSerializer."""
-
-    is_deleted: SerializerMethodField = AbstractDateTimeSerializer.is_deleted
-    datetime_created: DateTimeField = \
-        AbstractDateTimeSerializer.datetime_created
-
-    class Meta:
-        """Customization of the Serializer."""
-
-        model: Answer = Answer
-        fields: tuple[str] | str = (
-            "id",
-            "name",
-            "is_correct",
-            "question",
-            "is_deleted",
-            "datetime_created",
+            "answers",
         )
 
 
@@ -200,4 +205,43 @@ class QuizCreateModelSeriazizer(ModelSerializer):
             "name",
             "student",
             "quiz_type",
+        )
+
+
+class QuizQuestionViewModelSerializer(QuizBaseModelSerializer):
+    """QuizQuestionViewModelSerializer."""
+
+    quiz_type: QuizTypeBaseSerializer = QuizTypeBaseSerializer()
+    attached_questions: QuestionForeignModelSerializer = \
+        QuestionForeignModelSerializer(
+            many=True
+        )
+
+    class Meta:
+        """Customization of the Serializer."""
+
+        model: Quiz = Quiz
+        fields: tuple[str] | str = (
+            "id",
+            "name",
+            "student",
+            "quiz_type",
+            "datetime_created",
+            "attached_questions",
+        )
+
+
+class QuizQuestionAnswerCreateModelSerializer(
+    ModelSerializer
+):
+    """QuizQuestionAnswerCreateSerializer."""
+
+    class Meta:
+        """Customization of the Table."""
+
+        model: QuizQuestionAnswer = QuizQuestionAnswer
+        fields: tuple[str] | str = (
+            "quiz",
+            "question",
+            "user_answer",
         )

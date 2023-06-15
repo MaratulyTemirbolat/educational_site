@@ -1,11 +1,13 @@
 from typing import (
     Any,
     Optional,
+    Union,
 )
 
 from rest_framework.request import Request as DRF_Request
 from rest_framework.response import Response as DRF_Response
 from rest_framework.viewsets import ViewSet
+from rest_framework.decorators import action
 from rest_framework.permissions import (
     AllowAny,
     IsAuthenticated,
@@ -13,6 +15,7 @@ from rest_framework.permissions import (
 from rest_framework.status import (
     HTTP_403_FORBIDDEN,
     HTTP_400_BAD_REQUEST,
+    HTTP_200_OK,
 )
 
 from django.db.models import (
@@ -23,6 +26,7 @@ from django.db.models import (
 from abstracts.handlers import DRFResponseHandler
 from abstracts.mixins import ModelInstanceMixin
 from abstracts.paginators import AbstractPageNumberPaginator
+from abstracts.tools import conver_to_int_or_none
 from auths.permissions import IsNonDeletedUser
 from subjectss.permissions import IsStudent
 from subjectss.models import Student
@@ -33,10 +37,13 @@ from tests.serializers import (
     QuizListModelSerializer,
     QuizDetailModelSerializer,
     QuizCreateModelSeriazizer,
+    QuizQuestionViewModelSerializer,
+    QuizQuestionAnswerCreateModelSerializer,
 )
 from tests.models import (
     QuizType,
     Quiz,
+    QuizQuestionAnswer,
 )
 
 
@@ -149,10 +156,17 @@ class QuizViewSet(
             ).prefetch_related(
                 "quiz_questions__question",
                 "quiz_questions__user_answer",
+                "quiz_questions__question__answers",
+                "attached_questions",
+                "attached_questions__answers"
             )
         )
         if not is_existed:
             return quiz_resp
+        provided_serializer: Union[
+            QuizDetailModelSerializer,
+            QuizQuestionViewModelSerializer
+        ] = kwargs.get("create_serializer", QuizDetailModelSerializer)
         self.check_object_permissions(
             request=request,
             obj=quiz_resp
@@ -160,7 +174,7 @@ class QuizViewSet(
         return self.get_drf_response(
             request=request,
             data=quiz_resp,
-            serializer_class=QuizDetailModelSerializer
+            serializer_class=provided_serializer
         )
 
     def create(
@@ -177,15 +191,136 @@ class QuizViewSet(
         )
         valid: bool = serializer.is_valid()
         if valid:
-            new_quiz: Quiz = serializer.save()
-            return self.get_drf_response(
+            new_quiz: Quiz = Quiz(
+                name=request.data.get("name"),
+                quiz_type_id=request.data.get("quiz_type"),
+                student=request.user.student
+            )
+            new_quiz._subject_id: Optional[int] = conver_to_int_or_none(
+                number=request.data.get("subject_id", "")
+            )
+            new_quiz._class_number: Optional[int] = conver_to_int_or_none(
+                number=request.data.get("class_number", "")
+            )
+            new_quiz._topic_id: Optional[int] = conver_to_int_or_none(
+                number=request.data.get("topic_id", "")
+            )
+            new_quiz.save()
+            return self.retrieve(
                 request=request,
-                data=new_quiz,
-                serializer_class=QuizListModelSerializer
+                pk=new_quiz.id,
+                create_serializer=QuizQuestionViewModelSerializer
             )
         return DRF_Response(
             data={
                 "response": serializer.errors
             },
             status=HTTP_400_BAD_REQUEST
+        )
+
+    @action(
+        methods=["POST"],
+        detail=True,
+        url_path="upload_answers"
+    )
+    def upload_quiz(
+        self,
+        request: DRF_Request,
+        pk: int,
+        *args: tuple[Any],
+        **kwargs: dict[Any, Any]
+    ) -> DRF_Response:
+        """Handle POST-request to upload new quiz."""
+
+        is_existed: bool = False
+        quiz_resp: Quiz | DRF_Response
+        quiz_resp, is_existed = self.get_obj_or_response(
+            request=request,
+            pk=pk,
+            class_name=Quiz,
+            queryset=self.get_queryset().select_related(
+                "quiz_type"
+            ).prefetch_related(
+                "quiz_questions__question",
+                "quiz_questions__user_answer",
+                "quiz_questions__question__answers",
+                "attached_questions",
+                "attached_questions__answers"
+            )
+        )
+        if not is_existed:
+            return quiz_resp
+        self.check_object_permissions(
+            request=request,
+            obj=quiz_resp
+        )
+        user_answers: list[dict[str, int]] = request.data.get(
+            "questions", []
+        )
+        quiz_questions_number: int = quiz_resp.attached_questions.count()
+        if len(user_answers) != quiz_questions_number:
+            message: str = "Количество ответов не равно количеству вопросов"
+            return DRF_Response(
+                data={
+                    "response": message
+                },
+                status=HTTP_400_BAD_REQUEST
+            )
+        if quiz_resp.quiz_questions.count() > 0:
+            return DRF_Response(
+                data={
+                    "response": "Тест завершен. Загружать ответы нельзя."
+                },
+                status=HTTP_400_BAD_REQUEST
+            )
+        serializer: QuizQuestionAnswerCreateModelSerializer = \
+            QuizQuestionAnswerCreateModelSerializer
+
+        user_answ: dict[str, int]
+        for user_answ in user_answers:
+            if quiz_resp.id != user_answ["quiz"]:
+                message: str = "Номер теста в вопросе с \
+id: {0} не совпадает с запрошенным тестом {1}".format(
+                        user_answ['question'],
+                        quiz_resp.id
+                    )
+                breakpoint()
+                return DRF_Response(
+                    data={
+                        "response": message
+                    },
+                    status=HTTP_400_BAD_REQUEST
+                )
+            serializer = QuizQuestionAnswerCreateModelSerializer(
+                data=user_answ
+            )
+            if not serializer.is_valid():
+                return DRF_Response(
+                    data={
+                        "response": "Ошибка в \
+тесте: {0}, вопросе: {1}, ответе: {2}".format(
+                            user_answ["quiz"],
+                            user_answ["question"],
+                            user_answ["user_answer"]
+                        ),
+                        "errors": serializer.errors
+                    },
+                    status=HTTP_400_BAD_REQUEST
+                )
+        quiz_question_answers_list: list[QuizQuestionAnswer] = []
+        user_answ: dict[str, int]
+        for user_answ in user_answers:
+            quiz_question_answers_list.append(
+                QuizQuestionAnswer(
+                    quiz_id=user_answ["quiz"],
+                    question_id=user_answ["question"],
+                    user_answer_id=user_answ["user_answer"]
+                )
+            )
+        QuizQuestionAnswer.objects.bulk_create(objs=quiz_question_answers_list)
+        return DRF_Response(
+            data={
+                "response": "Данные успешно сохранены"
+            },
+            status=HTTP_200_OK
         )
