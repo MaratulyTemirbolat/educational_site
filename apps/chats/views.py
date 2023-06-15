@@ -1,5 +1,8 @@
 # from django.shortcuts import render
-from typing import Any
+from typing import (
+    Any,
+    Union,
+)
 
 from rest_framework.request import Request as DRF_Request
 from rest_framework.response import Response as DRF_Response
@@ -90,7 +93,7 @@ class PersonalChatViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
         **kwargs: dict[str, Any]
     ) -> DRF_Response:
         """Handle GET-request with provided id chat."""
-        res_chat: PersonalChat | DRF_Response
+        res_chat: Union[PersonalChat, DRF_Response]
         is_existed: bool = False
         res_chat, is_existed = self.get_obj_or_response(
             request=request,
@@ -171,7 +174,7 @@ class PersonalChatViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
         **kwargs: dict[Any, Any]
     ) -> DRF_Response:
         """Add message to the specific chat."""
-        res_chat: PersonalChat | DRF_Response
+        res_chat: Union[PersonalChat, DRF_Response]
         is_existed: bool = False
         res_chat, is_existed = self.get_obj_or_response(
             request=request,

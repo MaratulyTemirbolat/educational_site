@@ -1,4 +1,7 @@
-from typing import Any
+from typing import (
+    Any,
+    Union,
+)
 from random import choices
 
 from django.dispatch import receiver
@@ -29,7 +32,9 @@ def post_save_quiz(
     **kwargs: dict[Any, Any]
 ) -> None:
     """Add Questions to the model by its quiz_type."""
-    quiz_type_id: int | None = conver_to_int_or_none(instance.quiz_type_id)
+    quiz_type_id: Union[int, None] = conver_to_int_or_none(
+        instance.quiz_type_id
+    )
     if created and quiz_type_id == QuizType.TOPIC_QUIZ_TYPE and \
             hasattr(instance, "_topic_id"):
         question_quantity: int = Question.objects.filter(

@@ -1,4 +1,7 @@
-from typing import Any
+from typing import (
+    Any,
+    Union,
+)
 
 from rest_framework.serializers import (
     ModelSerializer,
@@ -41,7 +44,7 @@ class AnswerForeignModelSerializer(
         """Customization of the Serializer."""
 
         model: Answer = Answer
-        fields: tuple[str] | str = (
+        fields: Union[tuple[str], str] = (
             "id",
             "name",
             "is_correct",
@@ -65,7 +68,7 @@ class QuizTypeBaseSerializer(
         """Customization of the Serializer."""
 
         model: QuizType = QuizType
-        fields: tuple[str] | str = (
+        fields: Union[tuple[str], str] = (
             "id",
             "name",
             "is_deleted",
@@ -90,7 +93,7 @@ class QuestionForeignModelSerializer(
         """Customization of the Serializer."""
 
         model: Question = Question
-        fields: tuple[str] | str = (
+        fields: Union[tuple[str], str] = (
             "id",
             "name",
             "attached_subject_class",
@@ -112,7 +115,7 @@ class QuizBaseModelSerializer(ModelSerializer):
         """Customization of the serializer."""
 
         model: Quiz = Quiz
-        fields: tuple[str] | str = "__all__"
+        fields: Union[tuple[str], str] = "__all__"
 
 
 class QuizQuestionAnswerForeignSerializer(ModelSerializer):
@@ -125,7 +128,7 @@ class QuizQuestionAnswerForeignSerializer(ModelSerializer):
         """Customization of the Serializer."""
 
         model: QuizQuestionAnswer = QuizQuestionAnswer
-        fields: tuple[str] | str = (
+        fields: Union[tuple[str], str] = (
             "id",
             "quiz",
             "question",
@@ -142,7 +145,7 @@ class QuizListModelSerializer(QuizBaseModelSerializer):
         """Customization of the Serializer."""
 
         model: Quiz = Quiz
-        fields: tuple[str] | str = (
+        fields: Union[tuple[str], str] = (
             "id",
             "name",
             "quiz_type",
@@ -167,7 +170,7 @@ class QuizDetailModelSerializer(QuizBaseModelSerializer):
         """Customization of the Serializer."""
 
         model: Quiz = Quiz
-        fields: tuple[str] | str = (
+        fields: Union[tuple[str], str] = (
             "id",
             "name",
             "quiz_type",
@@ -200,7 +203,7 @@ class QuizCreateModelSeriazizer(ModelSerializer):
         """Customization of the Serializer."""
 
         model: Quiz = Quiz
-        fields: tuple[str] | str = (
+        fields: Union[tuple[str], str] = (
             "id",
             "name",
             "student",
@@ -221,7 +224,7 @@ class QuizQuestionViewModelSerializer(QuizBaseModelSerializer):
         """Customization of the Serializer."""
 
         model: Quiz = Quiz
-        fields: tuple[str] | str = (
+        fields: Union[tuple[str], str] = (
             "id",
             "name",
             "student",
@@ -240,7 +243,7 @@ class QuizQuestionAnswerCreateModelSerializer(
         """Customization of the Table."""
 
         model: QuizQuestionAnswer = QuizQuestionAnswer
-        fields: tuple[str] | str = (
+        fields: Union[tuple[str], str] = (
             "quiz",
             "question",
             "user_answer",

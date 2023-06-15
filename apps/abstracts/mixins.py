@@ -1,6 +1,7 @@
 from typing import (
     Optional,
     Tuple,
+    Union,
 )
 
 from rest_framework.request import Request as DRF_Request
@@ -60,11 +61,11 @@ class ModelInstanceMixin:
     def get_obj_or_response(
         self,
         request: DRF_Request,
-        pk: int | str,
+        pk: Union[int, str],
         class_name: Model,
         queryset: QuerySet[Model],
         is_deleted: bool = False,
-    ) -> Tuple[Model | DRF_Response, bool]:
+    ) -> Tuple[Union[Model, DRF_Response], bool]:
         """Return object and boolean as True. Otherwise Response and False."""
         if is_deleted and not request.user.is_superuser:
             return (DRF_Response(

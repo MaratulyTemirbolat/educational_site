@@ -1,3 +1,4 @@
+from typing import Union
 from datetime import datetime
 import pytz
 from dateutil.relativedelta import relativedelta
@@ -119,7 +120,7 @@ class CustomUserListStudentSerializer(
 
     class Meta:
         model: CustomUser = CustomUser
-        fields: str | tuple[str] = (
+        fields: Union[str, tuple[str]] = (
             "id",
             "email",
             "first_name",
@@ -145,7 +146,7 @@ class CustomUserListTeacherSerializer(
 
     class Meta:
         model: CustomUser = CustomUser
-        fields: str | tuple[str] = (
+        fields: Union[str, tuple[str]] = (
             "id",
             "email",
             "first_name",
@@ -184,7 +185,7 @@ class CustomUserForeignSerializer(AbstractDateTimeSerializer, ModelSerializer):
         """Customization of the serializer."""
 
         model: CustomUser = CustomUser
-        fields: tuple[str] | str = (
+        fields: Union[tuple[str], str] = (
             "id",
             "email",
             "first_name",
@@ -202,7 +203,7 @@ class StudentChatForeignSerializer(ModelSerializer):
 
     class Meta:
         model: Student = Student
-        fields: str | tuple[str] = (
+        fields: Union[str, tuple[str]] = (
             "id",
             "user",
             "points",
@@ -218,7 +219,7 @@ class TeacherChatForeignSerializer(ModelSerializer):
         """Customization of the Serializer."""
 
         model: Teacher = Teacher
-        fields: tuple[str] | str = (
+        fields: Union[tuple[str], str] = (
             "id",
             "user",
         )
@@ -236,7 +237,7 @@ class TeacherListModelSerializer(TeacherForeignModelSerializer):
         """Customization of the Serializer."""
 
         model: Teacher = Teacher
-        fields: tuple[str] | str = (
+        fields: Union[tuple[str], str] = (
             "id",
             "user",
             "status_subscription",

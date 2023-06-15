@@ -1,4 +1,7 @@
-from typing import Any
+from typing import (
+    Any,
+    Union,
+)
 
 from rest_framework.serializers import (
     ModelSerializer,
@@ -43,7 +46,7 @@ class MessageBaseModelSerializer(AbstractDateTimeSerializer, ModelSerializer):
 
     class Meta:
         model: Message = Message
-        fields: str | tuple[str] = (
+        fields: Union[str, tuple[str]] = (
             "id",
             "content",
             "owner",
@@ -66,7 +69,7 @@ class MessageCreateModelSerializer(ModelSerializer):
         """Customization of the Serializer."""
 
         model: Message = Message
-        fields: tuple[str] | str = (
+        fields: Union[tuple[str], str] = (
             "id",
             "content",
             "owner",
@@ -86,7 +89,7 @@ class PersonalChatBaseModelSerializer(
 
     class Meta:
         model: PersonalChat = PersonalChat
-        fields: tuple[str] | str = (
+        fields: Union[tuple[str], str] = (
             "id",
             "is_deleted",
             "datetime_created",
@@ -117,7 +120,7 @@ class PersonalChatDetailSerializer(PersonalChatListSerializer):
         """Customization of the Serializer."""
 
         model: PersonalChat = PersonalChat
-        fields: tuple[str] | str = (
+        fields: Union[tuple[str], str] = (
             "id",
             "is_deleted",
             "datetime_created",

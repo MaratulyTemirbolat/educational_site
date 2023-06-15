@@ -4,6 +4,7 @@ from typing import (
     Tuple,
     Any,
     List,
+    Union,
 )
 from datetime import datetime
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -97,14 +98,14 @@ class CustomUserViewSet(
     def retrieve(
         self,
         request: DRF_Request,
-        pk: str | int,
+        pk: Union[str, int],
         *args: Tuple[Any],
         **kwargs: Dict[str, Any]
     ) -> DRF_Response:
         """Hadnle GET-request with provided id."""
         is_deleted: bool = bool(request.query_params.get("is_deleted", False))
         is_custom_user: bool = False
-        obj_response: CustomUser | DRF_Response
+        obj_response: Union[CustomUser, DRF_Response]
         obj_response, is_custom_user = self.get_obj_or_response(
             request=request,
             pk=pk,
@@ -399,13 +400,13 @@ class CustomUserViewSet(
     def recover(
         self,
         request: DRF_Request,
-        pk: int | str,
+        pk: Union[int, str],
         *args: Tuple[Any],
         **kwargs: Dict[str, Any]
     ) -> DRF_Response:
         """Hadle GET, POST requests to recover the user if deleted."""
 
-        user_response: DRF_Response | CustomUser
+        user_response: Union[DRF_Response, CustomUser]
         is_user: bool = False
         user_response, is_user = self.get_obj_or_response(
             request=request,

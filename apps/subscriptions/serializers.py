@@ -1,4 +1,7 @@
-from typing import Tuple
+from typing import (
+    Tuple,
+    Union,
+)
 
 from rest_framework.serializers import (
     ModelSerializer,
@@ -25,7 +28,7 @@ class SubscriptionBaseSerializer(AbstractDateTimeSerializer, ModelSerializer):
         """Customization of the Serializer."""
 
         model: Subscription = Subscription
-        fields: Tuple[str] | str = "__all__"
+        fields: Union[Tuple[str], str] = "__all__"
 
 
 class SubscriptionForeignSerializer(SubscriptionBaseSerializer):
@@ -35,7 +38,7 @@ class SubscriptionForeignSerializer(SubscriptionBaseSerializer):
         """Customization of the Serializer."""
 
         model: Subscription = Subscription
-        fields: Tuple[str] | str = (
+        fields: Union[Tuple[str], str] = (
             "id",
             "name",
             "description",
@@ -56,7 +59,7 @@ class StatusBaseSerializer(AbstractDateTimeSerializer, ModelSerializer):
         """Customization of the Status Serializer."""
 
         model: Status = Status
-        fields: Tuple[str] | str = "__all__"
+        fields: Union[Tuple[str], str] = "__all__"
 
 
 class StatusForeignSerializer(StatusBaseSerializer):
@@ -64,7 +67,7 @@ class StatusForeignSerializer(StatusBaseSerializer):
 
     class Meta:
         model: Status = Status
-        fields: Tuple[str] | str = (
+        fields: Union[Tuple[str], str] = (
             "id",
             "name",
             "is_deleted",

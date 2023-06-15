@@ -1,4 +1,7 @@
-from typing import Tuple
+from typing import (
+    Tuple,
+    Union,
+)
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import pytz
@@ -41,7 +44,7 @@ class TeacherForeignModelSerializer(ModelSerializer):
         """Customization of the Serializer."""
 
         model: Teacher = Teacher
-        fields: Tuple[str] | str = (
+        fields: Union[Tuple[str], str] = (
             "id",
             "user",
             "subscription",
@@ -71,4 +74,4 @@ class TeacherBaseModelSerializer(ModelSerializer):
         """Customization of the Serializer."""
 
         model: Teacher = Teacher
-        fields: Tuple[str] | str = "__all__"
+        fields: Union[Tuple[str], str] = "__all__"

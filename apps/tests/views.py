@@ -146,7 +146,7 @@ class QuizViewSet(
     ) -> DRF_Response:
         """Handle GET-request with specified id."""
         is_existed: bool = False
-        quiz_resp: Quiz | DRF_Response
+        quiz_resp: Union[Quiz, DRF_Response]
         quiz_resp, is_existed = self.get_obj_or_response(
             request=request,
             pk=pk,
@@ -233,7 +233,7 @@ class QuizViewSet(
         """Handle POST-request to upload new quiz."""
 
         is_existed: bool = False
-        quiz_resp: Quiz | DRF_Response
+        quiz_resp: Union[Quiz, DRF_Response]
         quiz_resp, is_existed = self.get_obj_or_response(
             request=request,
             pk=pk,

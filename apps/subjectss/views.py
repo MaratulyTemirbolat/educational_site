@@ -3,6 +3,7 @@ from typing import (
     Tuple,
     Dict,
     Optional,
+    Union,
 )
 
 from rest_framework.request import Request as DRF_Request
@@ -112,7 +113,7 @@ class GeneralSubjectViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
     ) -> DRF_Response:
         """Handle GET-request to find GeneralSubject with provided id."""
         is_deleted: bool = request.GET.get("is_deleted", False)
-        obj_response: GeneralSubject | DRF_Response
+        obj_response: Union[GeneralSubject, DRF_Response]
         is_user: bool = False
         obj_response, is_user = self.get_obj_or_response(
             request=request,
@@ -178,7 +179,7 @@ class TrackWayViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
     ) -> DRF_Response:
         """Handle GET-request to find GeneralSubject with provided id."""
         is_deleted: bool = request.GET.get("is_deleted", False)
-        obj_response: TrackWay | DRF_Response
+        obj_response: Union[TrackWay, DRF_Response]
         is_obj: bool = False
         obj_response, is_obj = self.get_obj_or_response(
             request=request,
@@ -294,14 +295,14 @@ class ClassSubjectViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
     def retrieve(
         self,
         request: DRF_Request,
-        pk: int | str = 0,
+        pk: Union[int, str] = 0,
         *args: Tuple[Any],
         **kwargs: Dict[str, Any]
     ) -> DRF_Response:
         """Handle GET-request to obtain specific ClassSubject obj."""
         is_deleted: bool = request.query_params.get("is_deleted", False)
         is_class_subject: bool = False
-        obj_response: ClassSubject | DRF_Response
+        obj_response: Union[ClassSubject, DRF_Response]
         obj_response, is_class_subject = self.get_obj_or_response(
             request=request,
             pk=pk,
@@ -343,7 +344,7 @@ class ClassSubjectViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
         """Handle POST-request to register user for subject."""
 
         is_class_subject: bool = False
-        obj_response: ClassSubject | DRF_Response
+        obj_response: Union[ClassSubject, DRF_Response]
         obj_response, is_class_subject = self.get_obj_or_response(
             request=request,
             pk=pk,
@@ -399,7 +400,7 @@ class ClassSubjectViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
         """Handle GET-request to get teachers on specified subject."""
 
         is_class_subject: bool = False
-        obj_response: ClassSubject | DRF_Response
+        obj_response: Union[ClassSubject, DRF_Response]
         obj_response, is_class_subject = self.get_obj_or_response(
             request=request,
             pk=pk,
@@ -471,7 +472,7 @@ class TopicViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
     def retrieve(
         self,
         request: DRF_Request,
-        pk: int | str,
+        pk: Union[int, str],
         *args: Tuple[Any],
         **kwargs: Dict[str, Any]
     ) -> DRF_Response:
@@ -479,7 +480,7 @@ class TopicViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
         is_deleted: bool = bool(
             request.query_params.get("is_deleted", False)
         )
-        obj_response: Topic | DRF_Response
+        obj_response: Union[Topic, DRF_Response]
         is_obj: bool = False
         obj_response, is_obj = self.get_obj_or_response(
             request=request,

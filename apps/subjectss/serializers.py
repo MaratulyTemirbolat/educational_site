@@ -2,6 +2,7 @@ from typing import (
     Dict,
     Tuple,
     Any,
+    Union,
 )
 
 from rest_framework.serializers import (
@@ -37,7 +38,7 @@ class GeneralSubjectBaseSerializer(
         """Customization of the GeneralSubject model reference."""
 
         model: GeneralSubject = GeneralSubject
-        fields: str | tuple[str] = (
+        fields: Union[str, tuple[str]] = (
             "id",
             "name",
             "datetime_created",
@@ -56,7 +57,7 @@ class ClassSubjectShortSerializer(AbstractDateTimeSerializer, ModelSerializer):
         """Customization of the Serializer."""
 
         model: ClassSubject = ClassSubject
-        fields: Tuple[str] | str = (
+        fields: Union[Tuple[str], str] = (
             "id",
             "name",
             "is_deleted",
@@ -76,7 +77,7 @@ class TopicBaseSerializer(AbstractDateTimeSerializer, ModelSerializer):
 
     class Meta:
         model: Topic = Topic
-        fields: str | tuple[str] = (
+        fields: Union[str, tuple[str]] = (
             "id",
             "name",
             "content",
@@ -116,7 +117,7 @@ class TopicDetailSerializer(TopicListSerializer):
         """Customization of the Serializer."""
 
         model: Topic = Topic
-        fields: Tuple[str] | str = "__all__"
+        fields: Union[Tuple[str], str] = "__all__"
 
 
 class TrackWayBaseSerializer(AbstractDateTimeSerializer, ModelSerializer):
@@ -128,7 +129,7 @@ class TrackWayBaseSerializer(AbstractDateTimeSerializer, ModelSerializer):
 
     class Meta:
         model: TrackWay = TrackWay
-        fields: str | Tuple[str] = (
+        fields: Union[str, Tuple[str]] = (
             "id",
             "name",
             "datetime_created",
@@ -146,7 +147,7 @@ class TrackWayDetailSerializer(TrackWayBaseSerializer):
 
     class Meta:
         model: TrackWay = TrackWay
-        fields: str | tuple[str] = "__all__"
+        fields: Union[str, tuple[str]] = "__all__"
 
 
 class ClassBaseSerializer(AbstractDateTimeSerializer, ModelSerializer):
@@ -158,7 +159,7 @@ class ClassBaseSerializer(AbstractDateTimeSerializer, ModelSerializer):
 
     class Meta:
         model: Class = Class
-        fields: str | tuple[str] = (
+        fields: Union[str, tuple[str]] = (
             "id",
             "number",
             "datetime_created",
@@ -178,7 +179,7 @@ class ClassSubjectBaseSerializer(AbstractDateTimeSerializer, ModelSerializer):
 
     class Meta:
         model: ClassSubject = ClassSubject
-        fields: str | tuple[str] = (
+        fields: Union[str, tuple[str]] = (
             "id",
             "name",
             "general_subject",
@@ -197,7 +198,7 @@ class ClassSubjectDetailSerializer(ClassSubjectBaseSerializer):
 
     class Meta:
         model: ClassSubject = ClassSubject
-        fields: str | tuple[str] = (
+        fields: Union[str, tuple[str]] = (
             "id",
             "name",
             "general_subject",
@@ -235,7 +236,7 @@ class StudentForeignSerializer(ModelSerializer):
 
     class Meta:
         model: Student = Student
-        fields: str | tuple[str] = (
+        fields: Union[str, tuple[str]] = (
             "id",
             "points",
             "registered_subjects",
