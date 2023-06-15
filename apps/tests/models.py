@@ -17,6 +17,9 @@ from subjectss.models import Student
 
 
 class QuizType(AbstractDateTime):
+    SUBJECT_QUIZ_TYPE = 1
+    TOPIC_QUIZ_TYPE = 2
+    CLASS_QUIZ_TYPE = 3
     QUIZ_NAME_LIMIT = 100
     name: CharField = CharField(
         max_length=QUIZ_NAME_LIMIT,
