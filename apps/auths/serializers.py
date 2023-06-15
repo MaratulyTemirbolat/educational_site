@@ -1,3 +1,7 @@
+from datetime import datetime
+import pytz
+from dateutil.relativedelta import relativedelta
+
 from rest_framework.serializers import (
     ModelSerializer,
     SerializerMethodField,
@@ -6,7 +10,6 @@ from rest_framework.serializers import (
     EmailField,
     CharField,
 )
-
 
 from auths.models import CustomUser
 from abstracts.serializers import AbstractDateTimeSerializer
@@ -219,3 +222,37 @@ class TeacherChatForeignSerializer(ModelSerializer):
             "id",
             "user",
         )
+
+
+utc = pytz.UTC
+
+
+class TeacherListModelSerializer(TeacherForeignModelSerializer):
+    """TeacherListModelSerializer."""
+
+    user: CustomUserForeignSerializer = CustomUserForeignSerializer()
+
+    class Meta:
+        """Customization of the Serializer."""
+
+        model: Teacher = Teacher
+        fields: tuple[str] | str = (
+            "id",
+            "user",
+            "status_subscription",
+            "datetime_created",
+            "is_expired_subscrs",
+            "tought_subjects",
+        )
+
+    def get_is_expired_subscription(self, obj: Teacher) -> bool:
+        """Get if the subscription is expired or not."""
+        if not obj.subscription or not obj.datetime_created:
+            return None
+        cur_datetime: datetime = datetime.now(tz=utc)
+        expired_datetime: datetime = (obj.datetime_created + relativedelta(
+            months=obj.subscription.duration
+        ))
+        # expired_datetime = expired_datetime.replace(tzinfo=utc)
+
+        return True if cur_datetime > expired_datetime else False

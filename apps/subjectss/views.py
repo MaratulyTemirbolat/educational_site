@@ -8,7 +8,7 @@ from typing import (
 from rest_framework.request import Request as DRF_Request
 from rest_framework.response import Response as DRF_Response
 from rest_framework.viewsets import ViewSet
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import action
 from rest_framework.status import (
     HTTP_200_OK,
@@ -30,7 +30,6 @@ from subjectss.models import (
     ClassSubjectQuerySet,
     Topic,
     StudentRegisteredSubjects,
-    StudentSubjectState,
 )
 from subjectss.serializers import (
     GeneralSubjectBaseSerializer,
@@ -52,9 +51,12 @@ from abstracts.handlers import DRFResponseHandler
 from abstracts.mixins import ModelInstanceMixin
 from abstracts.paginators import AbstractPageNumberPaginator
 from abstracts.models import AbstractDateTimeQuerySet
-from auths.permissions import IsNonDeletedUser
+from auths.permissions import (
+    IsNonDeletedUser,
+    IsCustomAdminUser,
+)
+from auths.serializers import TeacherListModelSerializer
 from abstracts.tools import conver_to_int_or_none
-from auths.permissions import IsCustomAdminUser
 
 
 class GeneralSubjectViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
@@ -374,6 +376,51 @@ class ClassSubjectViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
                 "response": "Вы успешно зарегестрировались на предмет"
             },
             status=HTTP_200_OK
+        )
+
+    # Не оптимизирован запрос на subscription
+    @action(
+        methods=["GET"],
+        detail=True,
+        url_path="get_teachers",
+        permission_classes=(
+            IsStudent,
+            IsNonDeletedUser,
+            IsAuthenticated,
+        )
+    )
+    def get_class_subj_teachers(
+        self,
+        request: DRF_Request,
+        pk: int,
+        *args: tuple[Any],
+        **kwargs: dict[Any, Any]
+    ) -> DRF_Response:
+        """Handle GET-request to get teachers on specified subject."""
+
+        is_class_subject: bool = False
+        obj_response: ClassSubject | DRF_Response
+        obj_response, is_class_subject = self.get_obj_or_response(
+            request=request,
+            pk=pk,
+            class_name=ClassSubject,
+            queryset=self.get_queryset()
+        )
+
+        if not is_class_subject:
+            return obj_response
+        return self.get_drf_response(
+            request=request,
+            data=obj_response.teachers.all().select_related(
+                "user",
+                "subscription",
+                "status_subscription",
+            ).prefetch_related(
+                "tought_subjects",
+            ),
+            serializer_class=TeacherListModelSerializer,
+            many=True,
+            paginator=AbstractPageNumberPaginator()
         )
 
 
