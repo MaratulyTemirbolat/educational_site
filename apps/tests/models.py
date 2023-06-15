@@ -112,11 +112,17 @@ class Quiz(Model):
         to=Question,
         through="QuizQuestionAnswer",
         through_fields=["quiz", "question"],
-        verbose_name="Вопросы на предмет"
+        verbose_name="Вопросы на теста"
     )
     datetime_created: DateTimeField = DateTimeField(
         verbose_name="время и дата создания",
         auto_now_add=True
+    )
+    attached_questions: ManyToManyField = ManyToManyField(
+        to=Question,
+        blank=True,
+        related_name="quizess",
+        verbose_name="Прикрепленные вопросы теста (для чтения)"
     )
 
     class Meta:

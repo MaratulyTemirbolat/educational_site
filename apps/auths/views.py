@@ -140,9 +140,23 @@ class CustomUserViewSet(
         **kwargs: dict[str, Any]
     ) -> DRF_Response:
         """Handle POST-request for user creation."""
-        is_superuser: bool = request.data.get("is_superuser", False)
+        is_superuser: bool = bool(
+            request.data.get("is_superuser", False)
+        )
         is_staff: bool = False
-
+        _is_student: bool = bool(
+            request.data.get("is_student", False)
+        )
+        _is_teacher: bool = bool(
+            request.data.get("is_teacher", False)
+        )
+        if not _is_student and not _is_teacher:
+            return DRF_Response(
+                data={
+                    "response": "is_student или is_teacher должны быть даны"
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
         if is_superuser and not request.user.is_superuser:
             return DRF_Response(
                 data={
@@ -168,11 +182,18 @@ class CustomUserViewSet(
             if is_superuser:
                 is_staff = True
 
-            new_custom_user: CustomUser = serializer.save(
-                is_superuser=is_superuser,
+            new_custom_user: CustomUser = CustomUser(
+                email=request.data.get("email"),
+                first_name=request.data.get("first_name"),
+                last_name=request.data.get("last_name"),
                 is_staff=is_staff,
+                is_superuser=is_superuser,
                 password=new_password
             )
+            if _is_student:
+                new_custom_user._is_student = _is_student
+            if _is_teacher:
+                new_custom_user._is_teacher = _is_teacher
             new_custom_user.set_password(new_password)
             new_custom_user.save()
             refresh_token: RefreshToken = RefreshToken.for_user(
