@@ -21,11 +21,14 @@ def post_save_quiz(
     **kwargs: dict[Any, Any]
 ) -> None:
     """Add Questions to the model by its quiz_type."""
+    position: str = ""
+    if hasattr(instance, "_position"):
+        position = instance._position
     if created and \
-        hasattr(instance, "_is_student") and \
+        position == "student" and \
             not Student.objects.filter(user_id=instance.id).exists():
         Student.objects.create(user=instance)
     if created and \
-        hasattr(instance, "_is_teacher") and \
+        position == "teacher" and \
             not Teacher.objects.filter(user_id=instance.id).exists():
         Teacher.objects.create(user=instance)

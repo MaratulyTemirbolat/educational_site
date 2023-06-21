@@ -145,16 +145,11 @@ class CustomUserViewSet(
             request.data.get("is_superuser", False)
         )
         is_staff: bool = False
-        _is_student: bool = bool(
-            request.data.get("is_student", False)
-        )
-        _is_teacher: bool = bool(
-            request.data.get("is_teacher", False)
-        )
-        if not _is_student and not _is_teacher:
+        _position: Optional[str] = request.data.get("position", None)
+        if not _position:
             return DRF_Response(
                 data={
-                    "response": "is_student или is_teacher должны быть даны"
+                    "response": "'position' параметр должен быть предоставлен"
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
@@ -191,10 +186,8 @@ class CustomUserViewSet(
                 is_superuser=is_superuser,
                 password=new_password
             )
-            if _is_student:
-                new_custom_user._is_student = _is_student
-            if _is_teacher:
-                new_custom_user._is_teacher = _is_teacher
+            if _position:
+                new_custom_user._position = _position
             new_custom_user.set_password(new_password)
             new_custom_user.save()
             refresh_token: RefreshToken = RefreshToken.for_user(
