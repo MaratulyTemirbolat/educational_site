@@ -213,12 +213,24 @@ class CustomUserViewSet(
             refresh_token: RefreshToken = RefreshToken.for_user(
                 new_custom_user
             )
-            resulted_data: dict[str, Any] = serializer.data.copy()
-            resulted_data.setdefault("refresh", str(refresh_token))
-            resulted_data.setdefault("access", str(refresh_token.access_token))
-            response: DRF_Response = DRF_Response(
-                data=resulted_data,
-                status=status.HTTP_201_CREATED
+            # resulted_data: dict[str, Any] = serializer.data.copy()
+            # resulted_data.setdefault("refresh", str(refresh_token))
+            # resulted_data.setdefault("access", str(refresh_token.access_token))
+            # response: DRF_Response = DRF_Response(
+            #     data=resulted_data,
+            #     status=status.HTTP_201_CREATED
+            # )
+            response: DRF_Response = self.retrieve(
+                request=request,
+                pk=new_custom_user.id,
+                *args,
+                **kwargs
+            )
+            response.data.setdefault("refresh", str(refresh_token))
+            response.data.setdefault("access", str(refresh_token.access_token))
+            login(
+                request=request,
+                user=new_custom_user
             )
             return response
         return DRF_Response(
