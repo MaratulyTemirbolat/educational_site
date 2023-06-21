@@ -129,6 +129,26 @@ class CustomUserViewSet(
         return obj_response
 
     @action(
+        methods=["GET"],
+        detail=False,
+        url_path="personal_account",
+        permission_classes=(IsNonDeletedUser,)
+    )
+    def get_personal_info(
+        self,
+        request: DRF_Request,
+        *args: tuple[Any],
+        **kwargs: dict[Any, Any]
+    ) -> DRF_Response:
+        """Handle GET-request to obtain personal data."""
+        return self.retrieve(
+            request=request,
+            pk=request.user.id,
+            *args,
+            **kwargs
+        )
+
+    @action(
         methods=["POST"],
         url_path="register_user",
         detail=False,
