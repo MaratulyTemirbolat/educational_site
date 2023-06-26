@@ -138,7 +138,7 @@ class TrackWayViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
     """TrackWayViewSet."""
 
     queryset: Manager = TrackWay.objects
-    permission_classes: tuple[Any] = (IsNonDeletedUser,)
+    permission_classes: tuple[Any] = (AllowAny,)
     pagination_class: AbstractPageNumberPaginator = AbstractPageNumberPaginator
     serializer_class: TrackWayBaseSerializer = TrackWayBaseSerializer
 
