@@ -9,7 +9,7 @@ from typing import (
 from rest_framework.request import Request as DRF_Request
 from rest_framework.response import Response as DRF_Response
 from rest_framework.viewsets import ViewSet
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import action
 from rest_framework.status import (
     HTTP_200_OK,
@@ -206,6 +206,7 @@ class ClassViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
     """ClassViewSet."""
 
     queryset: Manager = Class.objects
+    permission_classes: tuple[Any] = (AllowAny,)
     pagination_class: AbstractPageNumberPaginator = AbstractPageNumberPaginator
     serializer_class: ClassBaseSerializer = ClassBaseSerializer
 
@@ -232,7 +233,7 @@ class ClassViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
             )
         response: DRF_Response = self.get_drf_response(
             request=request,
-            data=self.get_queryset(is_deleted=is_deleted),
+            data=self.get_queryset(is_deleted=is_deleted).order_by("number"),
             serializer_class=self.serializer_class,
             many=True
         )
