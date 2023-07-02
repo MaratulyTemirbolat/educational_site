@@ -80,8 +80,7 @@ class PersonalChatViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
                 "teacher__user"
             ),
             serializer_class=PersonalChatListSerializer,
-            many=True,
-            paginator=self.pagination_class()
+            many=True
         )
         return response
 

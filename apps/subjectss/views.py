@@ -9,7 +9,10 @@ from typing import (
 from rest_framework.request import Request as DRF_Request
 from rest_framework.response import Response as DRF_Response
 from rest_framework.viewsets import ViewSet
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import (
+    IsAuthenticated,
+    AllowAny,
+)
 from rest_framework.decorators import action
 from rest_framework.status import (
     HTTP_200_OK,
@@ -64,7 +67,7 @@ class GeneralSubjectViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
     """GeneralSubjectViewSet."""
 
     queryset: Manager = GeneralSubject.objects
-    permission_classes: tuple[Any] = (IsNonDeletedUser,)
+    permission_classes: tuple[Any] = (AllowAny,)
     serializer_class: GeneralSubjectBaseSerializer = \
         GeneralSubjectBaseSerializer
     pagination_class: AbstractPageNumberPaginator = AbstractPageNumberPaginator
@@ -99,8 +102,7 @@ class GeneralSubjectViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
             request=request,
             data=sear_queryset,
             serializer_class=GeneralSubjectBaseSerializer,
-            many=True,
-            paginator=self.pagination_class()
+            many=True
         )
         return response
 
@@ -244,7 +246,7 @@ class ClassSubjectViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
     """ClassSubjectViewSet."""
 
     queryset: Manager = ClassSubject.objects
-    permission_classes: tuple[Any] = (IsNonDeletedUser,)
+    permission_classes: tuple[Any] = (AllowAny,)
     class_serializer: ClassSubjectBaseSerializer = ClassSubjectBaseSerializer
 
     def get_queryset(self, is_deleted: bool = False) -> QuerySet[ClassSubject]:
@@ -288,7 +290,8 @@ class ClassSubjectViewSet(ModelInstanceMixin, DRFResponseHandler, ViewSet):
                 "general_subject"
             ),
             serializer_class=self.class_serializer,
-            many=True
+            many=True,
+            paginator=AbstractPageNumberPaginator()
         )
         return response
 

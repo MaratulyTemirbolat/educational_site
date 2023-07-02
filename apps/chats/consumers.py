@@ -71,6 +71,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         content: Optional[str] = data.get('content', None)
         chat_id: Optional[int] = data.get('chat_id', None)
         user_id: Optional[int] = data.get('user_id', None)
+        user: Optional[Any] = data.get('user', None)
 
         if content and user_id and chat_id and self.chat:
             await self.save_message(
@@ -85,7 +86,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'type': 'chat_message',
                     'content': content,
                     'chat_id': chat_id,
-                    'user_id': user_id
+                    'user_id': user_id,
+                    'user': user,
                 }
             )
 
@@ -94,12 +96,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
         content: str = event['content']
         chat_id: int = event['chat_id']
         user_id: int = event['user_id']
+        user: Any = event['user']
 
         await self.send(text_data=json.dumps(
             {
                 'content': content,
                 'chat': chat_id,
                 'user_id': user_id,
+                'user': user,
                 "accepted": True
             }
         ))
